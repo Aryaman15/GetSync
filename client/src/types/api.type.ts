@@ -263,6 +263,7 @@ type TaskTimerFields = {
   isRunning?: boolean;
   lastStoppedAt?: string | null;
   totalMinutesSpent?: number;
+  totalSecondsSpent?: number;
   pagesCompleted?: number | null;
   remarks?: string | null;
 };

@@ -56,6 +56,10 @@ export const updateTaskSchema = z.object({
   dueDate: dueDateSchema,
 });
 
+export const updateTaskStatusSchema = z.object({
+  status: statusSchema,
+});
+
 export const stopTaskTimerSchema = z.object({
   pagesCompleted: z.number().int().min(0).optional(),
   remarks: z.string().trim().optional(),
