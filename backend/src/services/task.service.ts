@@ -335,7 +335,8 @@ export const stopTaskTimerService = async (
   task.activeStartAt = null;
 
   if (body.pagesCompleted !== undefined) {
-    task.pagesCompleted = body.pagesCompleted;
+    const currentPages = task.pagesCompleted ?? 0;
+    task.pagesCompleted = currentPages + body.pagesCompleted;
   }
 
   if (body.remarks !== undefined) {

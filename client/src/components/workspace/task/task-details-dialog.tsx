@@ -32,13 +32,6 @@ const formatIstDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const formatMinutesToHourMinute = (minutes: number) => {
-  const safeMinutes = Math.max(0, minutes);
-  const hours = Math.floor(safeMinutes / 60);
-  const remainingMinutes = safeMinutes % 60;
-  return `${String(hours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}`;
-};
-
 const formatSecondsToClock = (seconds: number) => {
   const safeSeconds = Math.max(0, seconds);
   const hours = Math.floor(safeSeconds / 3600);
@@ -104,8 +97,9 @@ const TaskDetailsDialog = ({
     [currentTask.activeStartAt, now]
   );
 
-  const liveDurationMinutes = Math.floor(liveDurationSeconds / 60);
-  const totalMinutes = (currentTask.totalMinutesSpent ?? 0) + (isRunning ? liveDurationMinutes : 0);
+  const totalSeconds =
+    (currentTask.totalMinutesSpent ?? 0) * 60 +
+    (isRunning ? liveDurationSeconds : 0);
 
   const { mutate: startTimer, isPending: isStarting } = useMutation({
     mutationFn: startTaskTimerMutationFn,
@@ -215,7 +209,7 @@ const TaskDetailsDialog = ({
                     <div>
                       <p className="text-xs text-muted-foreground">Total time</p>
                       <p className="text-sm font-medium">
-                        {formatMinutesToHourMinute(totalMinutes)}
+                        {formatSecondsToClock(totalSeconds)}
                       </p>
                     </div>
                     <div>
