@@ -16,6 +16,8 @@ import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import useGetWorkspaceMembers from "@/hooks/api/use-get-workspace-members";
 import { getAvatarColor, getAvatarFallbackText } from "@/lib/helper";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthContext } from "@/context/auth-provider";
+import { Permissions } from "@/constant";
 
 type Filters = ReturnType<typeof useTaskTableFilter>[0];
 type SetFilters = ReturnType<typeof useTaskTableFilter>[1];
@@ -25,6 +27,7 @@ interface DataTableFilterToolbarProps {
   projectId?: string;
   filters: Filters;
   setFilters: SetFilters;
+  showAssignedFilter: boolean;
 }
 
 const TaskTable = () => {
@@ -37,6 +40,8 @@ const TaskTable = () => {
   const [filters, setFilters] = useTaskTableFilter();
   const workspaceId = useWorkspaceId();
   const columns = getColumns(projectId);
+  const { user, hasPermission } = useAuthContext();
+  const showAssignedFilter = hasPermission(Permissions.DELETE_TASK);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -54,7 +59,7 @@ const TaskTable = () => {
         priority: filters.priority,
         status: filters.status,
         projectId: projectId || filters.projectId,
-        assignedTo: filters.assigneeId,
+        assignedTo: showAssignedFilter ? filters.assigneeId : user?._id,
         pageNumber,
         pageSize,
       }),
@@ -92,6 +97,7 @@ const TaskTable = () => {
             projectId={projectId}
             filters={filters}
             setFilters={setFilters}
+            showAssignedFilter={showAssignedFilter}
           />
         }
       />
@@ -104,6 +110,7 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
   projectId,
   filters,
   setFilters,
+  showAssignedFilter,
 }) => {
   const workspaceId = useWorkspaceId();
 
@@ -189,14 +196,16 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
       />
 
       {/* Assigned To filter */}
-      <DataTableFacetedFilter
-        title="Assigned To"
-        multiSelect={true}
-        options={assigneesOptions}
-        disabled={isLoading}
-        selectedValues={filters.assigneeId?.split(",") || []}
-        onFilterChange={(values) => handleFilterChange("assigneeId", values)}
-      />
+      {showAssignedFilter ? (
+        <DataTableFacetedFilter
+          title="Assigned To"
+          multiSelect={true}
+          options={assigneesOptions}
+          disabled={isLoading}
+          selectedValues={filters.assigneeId?.split(",") || []}
+          onFilterChange={(values) => handleFilterChange("assigneeId", values)}
+        />
+      ) : null}
 
       {!projectId && (
         <DataTableFacetedFilter
