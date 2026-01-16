@@ -1,5 +1,5 @@
 import API from "./axios-client";
-import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProjectByIdPayloadType, ProjectResponseType, registerType, StopTaskTimerPayloadType, TaskTimerPayloadType, TaskType, TaskTypesResponseType, WorkspaceByIdResponseType } from "@/types/api.type";
+import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProgressEmployeePayloadType, ProgressEmployeeResponseType, ProgressSummaryPayloadType, ProgressSummaryResponseType, ProjectByIdPayloadType, ProjectResponseType, registerType, StopTaskTimerPayloadType, TaskTimerPayloadType, TaskType, TaskTypesResponseType, WorkspaceByIdResponseType } from "@/types/api.type";
 
 export const loginMutationFn = async (
   data: loginType
@@ -55,6 +55,41 @@ export const getWorkspaceAnalyticsQueryFn = async (
   workspaceId: string
 ): Promise<AnalyticsResponseType> => {
   const response = await API.get(`/workspace/analytics/${workspaceId}`);
+  return response.data;
+};
+
+export const getWorkspaceProgressSummaryQueryFn = async ({
+  workspaceId,
+  from,
+  to,
+}: ProgressSummaryPayloadType): Promise<ProgressSummaryResponseType> => {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const queryString = params.toString();
+  const response = await API.get(
+    `/workspaces/${workspaceId}/progress/summary${
+      queryString ? `?${queryString}` : ""
+    }`
+  );
+  return response.data;
+};
+
+export const getWorkspaceProgressEmployeeQueryFn = async ({
+  workspaceId,
+  userId,
+  from,
+  to,
+}: ProgressEmployeePayloadType): Promise<ProgressEmployeeResponseType> => {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const queryString = params.toString();
+  const response = await API.get(
+    `/workspaces/${workspaceId}/progress/employees/${userId}${
+      queryString ? `?${queryString}` : ""
+    }`
+  );
   return response.data;
 };
 
