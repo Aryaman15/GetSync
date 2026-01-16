@@ -11,6 +11,8 @@ export interface TaskDocument extends Document {
   taskCode: string;
   title: string;
   description: string | null;
+  taskTypeCode?: string;
+  taskTypeName?: string;
   project: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
   status: TaskStatusEnumType;
@@ -38,6 +40,14 @@ const taskSchema = new Schema<TaskDocument>(
       type: String,
       trim: true,
       default: null,
+    },
+    taskTypeCode: {
+      type: String,
+      trim: true,
+    },
+    taskTypeName: {
+      type: String,
+      trim: true,
     },
     project: {
       type: Schema.Types.ObjectId,

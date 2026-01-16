@@ -20,6 +20,7 @@ import workspaceRoutes from "./routes/workspace.route";
 import memberRoutes from "./routes/member.routes";
 import projectRoutes from "./routes/project.routes";
 import taskRoutes from "./routes/task.routes";
+import taskTypeRoutes from "./routes/task-type.routes";
 
 const app=express();
 const BASE_PATH=config.BASE_PATH;
@@ -59,6 +60,7 @@ app.use(`${BASE_PATH}/workspace`,isAuthenticated,workspaceRoutes);
 app.use(`${BASE_PATH}/member`,isAuthenticated,memberRoutes);
 app.use(`${BASE_PATH}/project`,isAuthenticated,projectRoutes);
 app.use(`${BASE_PATH}/task`,isAuthenticated,taskRoutes);
+app.use(`${BASE_PATH}/task-types`, isAuthenticated, taskTypeRoutes);
 
 app.use(errorHandler);
 
@@ -66,5 +68,4 @@ app.listen(config.PORT,async()=>{
     console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
     await connectDatabase();
 })
-
 

@@ -1,3 +1,4 @@
+import { getTaskTypeByCode } from "../config/task-types";
 import { TaskPriorityEnum, TaskStatusEnum } from "../enums/task.enum";
 import MemberModel from "../models/member.model";
 import ProjectModel from "../models/project.model";
@@ -9,7 +10,7 @@ export const createTaskService = async (
   projectId: string,
   userId: string,
   body: {
-    title: string;
+    taskTypeCode: string;
     description?: string;
     priority: string;
     status: string;
@@ -17,7 +18,8 @@ export const createTaskService = async (
     dueDate?: string;
   }
 ) => {
-  const { title, description, priority, status, assignedTo, dueDate } = body;
+  const { taskTypeCode, description, priority, status, assignedTo, dueDate } =
+    body;
 
   const project = await ProjectModel.findById(projectId);
 
@@ -36,8 +38,17 @@ export const createTaskService = async (
       throw new Error("Assigned user is not a member of this workspace.");
     }
   }
+  const taskType = getTaskTypeByCode(taskTypeCode);
+
+  if (!taskType) {
+    throw new BadRequestException("Invalid task type selected.");
+  }
+
+  const title = `${taskType.code} - ${taskType.name}`;
   const task = new TaskModel({
     title,
+    taskTypeCode: taskType.code,
+    taskTypeName: taskType.name,
     description,
     priority: priority || TaskPriorityEnum.MEDIUM,
     status: status || TaskStatusEnum.TODO,

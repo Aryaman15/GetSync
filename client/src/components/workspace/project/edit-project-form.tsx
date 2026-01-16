@@ -38,11 +38,30 @@ export default function EditProjectForm(props: {
 
   const projectId = project?._id as string;
 
+  const totalChaptersSchema = z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z
+      .coerce.number()
+      .int()
+      .min(1, { message: "Total chapters must be at least 1" })
+      .optional()
+  );
+
   const formSchema = z.object({
     name: z.string().trim().min(1, {
-      message: "Project title is required",
+      message: "Project name is required",
     }),
     description: z.string().trim(),
+    clientId: z.string().trim().min(1, {
+      message: "Client ID is required",
+    }),
+    clientName: z.string().trim().min(1, {
+      message: "Client name is required",
+    }),
+    projectId: z.string().trim().min(1, {
+      message: "Project ID is required",
+    }),
+    totalChapters: totalChaptersSchema,
   });
 
   const { mutate, isPending } = useMutation({
@@ -54,6 +73,10 @@ export default function EditProjectForm(props: {
     defaultValues: {
       name: "",
       description: "",
+      clientId: "",
+      clientName: "",
+      projectId: "",
+      totalChapters: undefined,
     },
   });
 
@@ -62,6 +85,10 @@ export default function EditProjectForm(props: {
       setEmoji(project.emoji);
       form.setValue("name", project.name);
       form.setValue("description", project.description);
+      form.setValue("clientId", project.clientId ?? "");
+      form.setValue("clientName", project.clientName ?? "");
+      form.setValue("projectId", project.projectId ?? "");
+      form.setValue("totalChapters", project.totalChapters ?? undefined);
     }
   }, [form, project]);
 
@@ -145,10 +172,102 @@ export default function EditProjectForm(props: {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="dark:text-[#f1f7feb5] text-sm">
-                      Project title
+                      Project name
                     </FormLabel>
                     <FormControl>
                       <Input placeholder="" className="!h-[48px]" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="mb-4">
+              <FormField
+                control={form.control}
+                name="clientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Client ID
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="CL-001"
+                        className="!h-[48px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="mb-4">
+              <FormField
+                control={form.control}
+                name="clientName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Client name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Acme Publishing"
+                        className="!h-[48px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="mb-4">
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Project ID
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="PRJ-2024-001"
+                        className="!h-[48px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="mb-4">
+              <FormField
+                control={form.control}
+                name="totalChapters"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Total chapters
+                      <span className="text-xs font-extralight ml-2">
+                        Optional
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        placeholder="12"
+                        className="!h-[48px]"
+                        value={field.value ?? ""}
+                        onChange={(event) =>
+                          field.onChange(event.target.value)
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

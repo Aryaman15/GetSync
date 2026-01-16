@@ -155,6 +155,10 @@ export type ProjectType = {
   name: string;
   emoji: string;
   description: string;
+  clientId?: string;
+  clientName?: string;
+  projectId?: string;
+  totalChapters?: number;
   workspace: string;
   createdBy: {
     _id: string;
@@ -171,6 +175,10 @@ export type CreateProjectPayloadType = {
     emoji: string;
     name: string;
     description: string;
+    clientId: string;
+    clientName: string;
+    projectId: string;
+    totalChapters?: number;
   };
 };
 
@@ -186,6 +194,10 @@ export type EditProjectPayloadType = {
     emoji: string;
     name: string;
     description: string;
+    clientId?: string;
+    clientName?: string;
+    projectId?: string;
+    totalChapters?: number;
   };
 };
 
@@ -217,7 +229,7 @@ export type CreateTaskPayloadType = {
   workspaceId: string;
   projectId: string;
   data: {
-    title: string;
+    taskTypeCode: string;
     description: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
@@ -245,6 +257,8 @@ export type TaskType = {
   _id: string;
   title: string;
   description?: string;
+  taskTypeCode?: string;
+  taskTypeName?: string;
   project?: {
     _id: string;
     emoji: string;
@@ -280,4 +294,13 @@ export type AllTaskResponseType = {
   message: string;
   tasks: TaskType[];
   pagination: PaginationType;
+};
+
+export type TaskTypeItem = {
+  code: string;
+  name: string;
+};
+
+export type TaskTypesResponseType = {
+  items: TaskTypeItem[];
 };
