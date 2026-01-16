@@ -257,12 +257,7 @@ export type EditTaskPayloadType = {
 };
 
 
-export type TaskType = {
-  _id: string;
-  title: string;
-  description?: string;
-  chapter?: string | null;
-  pageRange?: string | null;
+type TaskTimerFields = {
   firstStartedAt?: string | null;
   activeStartAt?: string | null;
   isRunning?: boolean;
@@ -270,6 +265,14 @@ export type TaskType = {
   totalMinutesSpent?: number;
   pagesCompleted?: number | null;
   remarks?: string | null;
+};
+
+export type TaskType = TaskTimerFields & {
+  _id: string;
+  title: string;
+  description?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
   project?: {

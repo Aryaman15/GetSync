@@ -7,14 +7,7 @@ import {
 } from "../enums/task.enum";
 import { generateTaskCode } from "../utils/uuid";
 
-export interface TaskDocument extends Document {
-  taskCode: string;
-  title: string;
-  description: string | null;
-  taskTypeCode?: string;
-  taskTypeName?: string;
-  chapter?: string | null;
-  pageRange?: string | null;
+interface TaskTimerFields {
   firstStartedAt?: Date | null;
   activeStartAt?: Date | null;
   isRunning: boolean;
@@ -22,6 +15,16 @@ export interface TaskDocument extends Document {
   totalMinutesSpent: number;
   pagesCompleted?: number | null;
   remarks?: string | null;
+}
+
+export interface TaskDocument extends Document, TaskTimerFields {
+  taskCode: string;
+  title: string;
+  description: string | null;
+  taskTypeCode?: string;
+  taskTypeName?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   project: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
   status: TaskStatusEnumType;
