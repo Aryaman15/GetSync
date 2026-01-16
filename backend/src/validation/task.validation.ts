@@ -6,6 +6,8 @@ export const taskTypeCodeSchema = z.string().trim().min(1, {
   message: "Task type is required",
 });
 export const descriptionSchema = z.string().trim().optional();
+export const chapterSchema = z.string().trim().optional();
+export const pageRangeSchema = z.string().trim().optional();
 
 export const assignedToSchema = z.string().trim().min(1).nullable().optional();
 
@@ -35,6 +37,8 @@ export const taskIdSchema = z.string().trim().min(1);
 export const createTaskSchema = z.object({
   taskTypeCode: taskTypeCodeSchema,
   description: descriptionSchema,
+  chapter: chapterSchema,
+  pageRange: pageRangeSchema,
   priority: prioritySchema,
   status: statusSchema,
   assignedTo: assignedToSchema,
@@ -44,8 +48,15 @@ export const createTaskSchema = z.object({
 export const updateTaskSchema = z.object({
   title: titleSchema,
   description: descriptionSchema,
+  chapter: chapterSchema,
+  pageRange: pageRangeSchema,
   priority: prioritySchema,
   status: statusSchema,
   assignedTo: assignedToSchema,
   dueDate: dueDateSchema,
+});
+
+export const stopTaskTimerSchema = z.object({
+  pagesCompleted: z.number().int().min(0).optional(),
+  remarks: z.string().trim().optional(),
 });
