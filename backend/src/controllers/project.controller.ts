@@ -100,7 +100,9 @@ export const getProjectAnalyticsController = asyncHandler(
 
     const { analytics } = await getProjectAnalyticsService(
       workspaceId,
-      projectId
+      projectId,
+      userId,
+      role
     );
 
     return res.status(HTTPSTATUS.OK).json({

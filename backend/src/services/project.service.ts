@@ -3,6 +3,7 @@ import ProjectModel from "../models/project.model";
 import TaskModel from "../models/task.model";
 import { NotFoundException } from "../utils/appError";
 import { TaskStatusEnum } from "../enums/task.enum";
+import { Roles } from "../enums/role.enum";
 
 export const createProjectService = async (
   userId: string,
@@ -82,7 +83,9 @@ export const getProjectByIdAndWorkspaceIdService = async (
 
 export const getProjectAnalyticsService = async (
   workspaceId: string,
-  projectId: string
+  projectId: string,
+  userId: string,
+  role: string
 ) => {
   const project = await ProjectModel.findById(projectId);
 
@@ -93,13 +96,19 @@ export const getProjectAnalyticsService = async (
   }
 
   const currentDate = new Date();
+  const shouldFilterByAssignee = role === Roles.MEMBER;
+  const baseMatch: Record<string, any> = {
+    project: new mongoose.Types.ObjectId(projectId),
+  };
+
+  if (shouldFilterByAssignee) {
+    baseMatch.assignedTo = new mongoose.Types.ObjectId(userId);
+  }
 
   //USING Mongoose aggregate
   const taskAnalytics = await TaskModel.aggregate([
     {
-      $match: {
-        project: new mongoose.Types.ObjectId(projectId),
-      },
+      $match: baseMatch,
     },
     {
       $facet: {
