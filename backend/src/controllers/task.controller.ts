@@ -98,6 +98,7 @@ export const getAllTasksController = asyncHandler(
 
     const filters = {
       projectId: req.query.projectId as string | undefined,
+      taskTypeCode: req.query.taskTypeCode as string | undefined,
       status: req.query.status
         ? (req.query.status as string)?.split(",")
         : undefined,

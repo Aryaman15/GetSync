@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { TaskPriorityEnum, TaskStatusEnum } from "@/constant";
+import { Permissions, TaskPriorityEnum, TaskStatusEnum } from "@/constant";
 import useWorkspaceId from "@/hooks/use-workspace-id";
 import { getAllTasksQueryFn } from "@/lib/api";
 import {
@@ -17,7 +17,8 @@ import { isAssignedToMe } from "./task-assignment";
 
 const RecentTasks = () => {
   const workspaceId = useWorkspaceId();
-  const { user } = useAuthContext();
+  const { user, hasPermission } = useAuthContext();
+  const showAllTasks = hasPermission(Permissions.DELETE_TASK);
 
   const { data, isLoading } = useQuery({
     queryKey: ["all-tasks", workspaceId],
@@ -30,9 +31,9 @@ const RecentTasks = () => {
   });
 
   const tasks: TaskType[] = data?.tasks || [];
-  const dashboardTasks = tasks.filter((task) =>
-    isAssignedToMe(task, user?._id)
-  );
+  const dashboardTasks = showAllTasks
+    ? tasks
+    : tasks.filter((task) => isAssignedToMe(task, user?._id));
 
   return (
     <div className="flex flex-col space-y-6">

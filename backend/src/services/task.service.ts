@@ -172,6 +172,7 @@ export const getAllTasksService = async (
   workspaceId: string,
   filters: {
     projectId?: string;
+    taskTypeCode?: string;
     status?: string[];
     priority?: string[];
     assignedTo?: string[];
@@ -189,6 +190,10 @@ export const getAllTasksService = async (
 
   if (filters.projectId) {
     query.project = filters.projectId;
+  }
+
+  if (filters.taskTypeCode) {
+    query.taskTypeCode = filters.taskTypeCode;
   }
 
   if (filters.status && filters.status?.length > 0) {

@@ -3,13 +3,14 @@ import AnalyticsCard from "./common/analytics-card";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTasksQueryFn } from "@/lib/api";
 import { useAuthContext } from "@/context/auth-provider";
-import { TaskStatusEnum } from "@/constant";
+import { Permissions, TaskStatusEnum } from "@/constant";
 import { TaskType } from "@/types/api.type";
 import { isAssignedToMe } from "./task/task-assignment";
 
 const WorkspaceAnalytics = () => {
   const workspaceId = useWorkspaceId();
-  const { user } = useAuthContext();
+  const { user, hasPermission } = useAuthContext();
+  const showAllTasks = hasPermission(Permissions.DELETE_TASK);
 
   const { data, isPending } = useQuery({
     queryKey: ["all-tasks", workspaceId],
@@ -22,9 +23,9 @@ const WorkspaceAnalytics = () => {
   });
 
   const tasks: TaskType[] = data?.tasks || [];
-  const dashboardTasks = tasks.filter((task) =>
-    isAssignedToMe(task, user?._id)
-  );
+  const dashboardTasks = showAllTasks
+    ? tasks
+    : tasks.filter((task) => isAssignedToMe(task, user?._id));
   const now = new Date();
   const overdueTasks = dashboardTasks.filter((task) => {
     if (!task.dueDate) return false;

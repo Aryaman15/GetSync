@@ -315,6 +315,7 @@ export type AllTaskPayloadType = {
   priority?: TaskPriorityEnumType | null;
   status?: TaskStatusEnumType | null;
   assignedTo?: string | null;
+  taskTypeCode?: string | null;
   dueDate?: string | null;
   pageNumber?: number | null;
   pageSize?: number | null;

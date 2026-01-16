@@ -10,7 +10,7 @@ import { priorities, statuses } from "./table/data";
 import useTaskTableFilter from "@/hooks/use-task-table-filter";
 import { useQuery } from "@tanstack/react-query";
 import useWorkspaceId from "@/hooks/use-workspace-id";
-import { getAllTasksQueryFn } from "@/lib/api";
+import { getAllTasksQueryFn, getTaskTypesQueryFn } from "@/lib/api";
 import { TaskType } from "@/types/api.type";
 import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import useGetWorkspaceMembers from "@/hooks/api/use-get-workspace-members";
@@ -60,6 +60,7 @@ const TaskTable = () => {
         status: filters.status,
         projectId: projectId || filters.projectId,
         assignedTo: showAssignedFilter ? filters.assigneeId : user?._id,
+        taskTypeCode: filters.taskTypeCode,
         pageNumber,
         pageSize,
       }),
@@ -119,9 +120,15 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
   });
 
   const { data: memberData } = useGetWorkspaceMembers(workspaceId);
+  const { data: taskTypeData } = useQuery({
+    queryKey: ["task-types"],
+    queryFn: getTaskTypesQueryFn,
+    staleTime: Infinity,
+  });
 
   const projects = data?.projects || [];
   const members = memberData?.members || [];
+  const taskTypes = taskTypeData?.items || [];
 
   //Workspace Projects
   const projectOptions = projects?.map((project) => {
@@ -162,6 +169,11 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
       [key]: values.length > 0 ? values.join(",") : null,
     });
   };
+
+  const taskTypeOptions = taskTypes.map((taskType) => ({
+    label: `${taskType.code}: ${taskType.name}`,
+    value: taskType.code,
+  }));
 
   return (
     <div className="flex flex-col lg:flex-row w-full items-start space-y-2 mb-2 lg:mb-0 lg:space-x-2  lg:space-y-0">
@@ -207,6 +219,15 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
         />
       ) : null}
 
+      <DataTableFacetedFilter
+        title="Task Type"
+        multiSelect={false}
+        options={taskTypeOptions}
+        disabled={isLoading}
+        selectedValues={filters.taskTypeCode?.split(",") || []}
+        onFilterChange={(values) => handleFilterChange("taskTypeCode", values)}
+      />
+
       {!projectId && (
         <DataTableFacetedFilter
           title="Projects"
@@ -232,6 +253,7 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
               priority: null,
               projectId: null,
               assigneeId: null,
+              taskTypeCode: null,
             })
           }
         >
