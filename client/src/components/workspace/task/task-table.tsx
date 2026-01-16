@@ -10,12 +10,14 @@ import { priorities, statuses } from "./table/data";
 import useTaskTableFilter from "@/hooks/use-task-table-filter";
 import { useQuery } from "@tanstack/react-query";
 import useWorkspaceId from "@/hooks/use-workspace-id";
-import { getAllTasksQueryFn } from "@/lib/api";
+import { getAllTasksQueryFn, getTaskTypesQueryFn } from "@/lib/api";
 import { TaskType } from "@/types/api.type";
 import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import useGetWorkspaceMembers from "@/hooks/api/use-get-workspace-members";
 import { getAvatarColor, getAvatarFallbackText } from "@/lib/helper";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthContext } from "@/context/auth-provider";
+import { Permissions } from "@/constant";
 
 type Filters = ReturnType<typeof useTaskTableFilter>[0];
 type SetFilters = ReturnType<typeof useTaskTableFilter>[1];
@@ -25,6 +27,7 @@ interface DataTableFilterToolbarProps {
   projectId?: string;
   filters: Filters;
   setFilters: SetFilters;
+  showAssignedFilter: boolean;
 }
 
 const TaskTable = () => {
@@ -37,6 +40,8 @@ const TaskTable = () => {
   const [filters, setFilters] = useTaskTableFilter();
   const workspaceId = useWorkspaceId();
   const columns = getColumns(projectId);
+  const { user, hasPermission } = useAuthContext();
+  const showAssignedFilter = hasPermission(Permissions.DELETE_TASK);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -54,7 +59,8 @@ const TaskTable = () => {
         priority: filters.priority,
         status: filters.status,
         projectId: projectId || filters.projectId,
-        assignedTo: filters.assigneeId,
+        assignedTo: showAssignedFilter ? filters.assigneeId : user?._id,
+        taskTypeCode: filters.taskTypeCode,
         pageNumber,
         pageSize,
       }),
@@ -92,6 +98,7 @@ const TaskTable = () => {
             projectId={projectId}
             filters={filters}
             setFilters={setFilters}
+            showAssignedFilter={showAssignedFilter}
           />
         }
       />
@@ -104,6 +111,7 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
   projectId,
   filters,
   setFilters,
+  showAssignedFilter,
 }) => {
   const workspaceId = useWorkspaceId();
 
@@ -112,9 +120,15 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
   });
 
   const { data: memberData } = useGetWorkspaceMembers(workspaceId);
+  const { data: taskTypeData } = useQuery({
+    queryKey: ["task-types"],
+    queryFn: getTaskTypesQueryFn,
+    staleTime: Infinity,
+  });
 
   const projects = data?.projects || [];
   const members = memberData?.members || [];
+  const taskTypes = taskTypeData?.items || [];
 
   //Workspace Projects
   const projectOptions = projects?.map((project) => {
@@ -156,6 +170,11 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
     });
   };
 
+  const taskTypeOptions = taskTypes.map((taskType) => ({
+    label: `${taskType.code}: ${taskType.name}`,
+    value: taskType.code,
+  }));
+
   return (
     <div className="flex flex-col lg:flex-row w-full items-start space-y-2 mb-2 lg:mb-0 lg:space-x-2  lg:space-y-0">
       <Input
@@ -189,13 +208,24 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
       />
 
       {/* Assigned To filter */}
+      {showAssignedFilter ? (
+        <DataTableFacetedFilter
+          title="Assigned To"
+          multiSelect={true}
+          options={assigneesOptions}
+          disabled={isLoading}
+          selectedValues={filters.assigneeId?.split(",") || []}
+          onFilterChange={(values) => handleFilterChange("assigneeId", values)}
+        />
+      ) : null}
+
       <DataTableFacetedFilter
-        title="Assigned To"
-        multiSelect={true}
-        options={assigneesOptions}
+        title="Task Type"
+        multiSelect={false}
+        options={taskTypeOptions}
         disabled={isLoading}
-        selectedValues={filters.assigneeId?.split(",") || []}
-        onFilterChange={(values) => handleFilterChange("assigneeId", values)}
+        selectedValues={filters.taskTypeCode?.split(",") || []}
+        onFilterChange={(values) => handleFilterChange("taskTypeCode", values)}
       />
 
       {!projectId && (
@@ -223,6 +253,7 @@ const DataTableFilterToolbar: FC<DataTableFilterToolbarProps> = ({
               priority: null,
               projectId: null,
               assigneeId: null,
+              taskTypeCode: null,
             })
           }
         >

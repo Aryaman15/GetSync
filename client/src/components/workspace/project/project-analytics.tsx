@@ -18,23 +18,26 @@ const ProjectAnalytics = () => {
   });
 
   const analytics = data?.analytics;
+  const totalTasks = analytics?.totalTasks || 0;
+  const completedTasks = analytics?.completedTasks || 0;
+  const taskLeft = Math.max(0, totalTasks - completedTasks);
 
   return (
     <div className="grid gap-4 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
       <AnalyticsCard
         isLoading={isPending}
         title="Total Task"
-        value={analytics?.totalTasks || 0}
+        value={totalTasks}
       />
       <AnalyticsCard
         isLoading={isPending}
-        title="Overdue Task"
-        value={analytics?.overdueTasks || 0}
+        title="Task Left"
+        value={taskLeft}
       />
       <AnalyticsCard
         isLoading={isPending}
         title="Completed Task"
-        value={analytics?.completedTasks || 0}
+        value={completedTasks}
       />
     </div>
   );

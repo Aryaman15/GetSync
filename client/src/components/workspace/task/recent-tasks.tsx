@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { TaskPriorityEnum, TaskStatusEnum } from "@/constant";
+import { Permissions, TaskPriorityEnum, TaskStatusEnum } from "@/constant";
 import useWorkspaceId from "@/hooks/use-workspace-id";
 import { getAllTasksQueryFn } from "@/lib/api";
 import {
@@ -12,9 +12,13 @@ import { TaskType } from "@/types/api.type";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Loader } from "lucide-react";
+import { useAuthContext } from "@/context/auth-provider";
+import { isAssignedToMe } from "./task-assignment";
 
 const RecentTasks = () => {
   const workspaceId = useWorkspaceId();
+  const { user, hasPermission } = useAuthContext();
+  const showAllTasks = hasPermission(Permissions.DELETE_TASK);
 
   const { data, isLoading } = useQuery({
     queryKey: ["all-tasks", workspaceId],
@@ -27,6 +31,9 @@ const RecentTasks = () => {
   });
 
   const tasks: TaskType[] = data?.tasks || [];
+  const dashboardTasks = showAllTasks
+    ? tasks
+    : tasks.filter((task) => isAssignedToMe(task, user?._id));
 
   return (
     <div className="flex flex-col space-y-6">
@@ -39,7 +46,7 @@ const RecentTasks = () => {
         />
       ) : null}
 
-      {tasks?.length === 0 && (
+      {dashboardTasks?.length === 0 && (
         <div
           className="font-semibold
          text-sm text-muted-foreground
@@ -50,7 +57,7 @@ const RecentTasks = () => {
       )}
 
       <ul role="list" className="divide-y divide-gray-200">
-        {tasks.map((task) => {
+        {dashboardTasks.map((task) => {
           const name = task?.assignedTo?.name || "";
           const initials = getAvatarFallbackText(name);
           const avatarColor = getAvatarColor(name);

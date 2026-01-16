@@ -274,6 +274,7 @@ export type TaskType = TaskTimerFields & {
   description?: string;
   chapter?: string | null;
   pageRange?: string | null;
+  assignedToId?: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
   project?: {
@@ -314,6 +315,7 @@ export type AllTaskPayloadType = {
   priority?: TaskPriorityEnumType | null;
   status?: TaskStatusEnumType | null;
   assignedTo?: string | null;
+  taskTypeCode?: string | null;
   dueDate?: string | null;
   pageNumber?: number | null;
   pageSize?: number | null;
