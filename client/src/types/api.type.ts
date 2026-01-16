@@ -155,6 +155,10 @@ export type ProjectType = {
   name: string;
   emoji: string;
   description: string;
+  clientId?: string;
+  clientName?: string;
+  projectId?: string;
+  totalChapters?: number;
   workspace: string;
   createdBy: {
     _id: string;
@@ -171,6 +175,10 @@ export type CreateProjectPayloadType = {
     emoji: string;
     name: string;
     description: string;
+    clientId: string;
+    clientName: string;
+    projectId: string;
+    totalChapters?: number;
   };
 };
 
@@ -186,6 +194,10 @@ export type EditProjectPayloadType = {
     emoji: string;
     name: string;
     description: string;
+    clientId?: string;
+    clientName?: string;
+    projectId?: string;
+    totalChapters?: number;
   };
 };
 

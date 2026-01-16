@@ -11,12 +11,20 @@ export const createProjectService = async (
     emoji?: string;
     name: string;
     description?: string;
+    clientId: string;
+    clientName: string;
+    projectId: string;
+    totalChapters?: number;
   }
 ) => {
   const project = new ProjectModel({
     ...(body.emoji && { emoji: body.emoji }),
     name: body.name,
     description: body.description,
+    clientId: body.clientId,
+    clientName: body.clientName,
+    projectId: body.projectId,
+    totalChapters: body.totalChapters,
     workspace: workspaceId,
     createdBy: userId,
   });
@@ -59,7 +67,9 @@ export const getProjectByIdAndWorkspaceIdService = async (
   const project = await ProjectModel.findOne({
     _id: projectId,
     workspace: workspaceId,
-  }).select("_id emoji name description");
+  }).select(
+    "_id emoji name description clientId clientName projectId totalChapters"
+  );
 
   if (!project) {
     throw new NotFoundException(
@@ -139,9 +149,15 @@ export const updateProjectService = async (
     emoji?: string;
     name: string;
     description?: string;
+    clientId?: string;
+    clientName?: string;
+    projectId?: string;
+    totalChapters?: number;
   }
 ) => {
-  const { name, emoji, description } = body;
+  const { name, emoji, description, clientId, clientName, totalChapters } =
+    body;
+  const externalProjectId = body.projectId;
 
   const project = await ProjectModel.findOne({
     _id: projectId,
@@ -157,6 +173,12 @@ export const updateProjectService = async (
   if (emoji) project.emoji = emoji;
   if (name) project.name = name;
   if (description) project.description = description;
+  if (clientId) project.clientId = clientId;
+  if (clientName) project.clientName = clientName;
+  if (externalProjectId) project.projectId = externalProjectId;
+  if (typeof totalChapters !== "undefined") {
+    project.totalChapters = totalChapters;
+  }
 
   await project.save();
 
