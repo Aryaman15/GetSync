@@ -97,9 +97,10 @@ const TaskDetailsDialog = ({
     [currentTask.activeStartAt, now]
   );
 
-  const totalSeconds =
-    (currentTask.totalMinutesSpent ?? 0) * 60 +
-    (isRunning ? liveDurationSeconds : 0);
+  const baseTotalSeconds =
+    currentTask.totalSecondsSpent ??
+    (currentTask.totalMinutesSpent ?? 0) * 60;
+  const totalSeconds = baseTotalSeconds + (isRunning ? liveDurationSeconds : 0);
 
   const { mutate: startTimer, isPending: isStarting } = useMutation({
     mutationFn: startTaskTimerMutationFn,

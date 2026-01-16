@@ -314,10 +314,11 @@ export const stopTaskTimerService = async (
   }
 
   const now = new Date();
-  const durationMinutes = Math.max(
+  const durationSeconds = Math.max(
     1,
-    Math.floor((now.getTime() - task.activeStartAt.getTime()) / 60000)
+    Math.floor((now.getTime() - task.activeStartAt.getTime()) / 1000)
   );
+  const durationMinutes = Math.max(1, Math.floor(durationSeconds / 60));
 
   await TaskWorkLogModel.create({
     taskId: task._id,
@@ -329,7 +330,10 @@ export const stopTaskTimerService = async (
     remarks: body.remarks ?? null,
   });
 
-  task.totalMinutesSpent += durationMinutes;
+  const currentSeconds =
+    task.totalSecondsSpent ?? (task.totalMinutesSpent ?? 0) * 60;
+  task.totalSecondsSpent = currentSeconds + durationSeconds;
+  task.totalMinutesSpent = Math.floor(task.totalSecondsSpent / 60);
   task.lastStoppedAt = now;
   task.isRunning = false;
   task.activeStartAt = null;

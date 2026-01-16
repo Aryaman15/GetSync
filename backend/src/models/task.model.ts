@@ -13,6 +13,7 @@ interface TaskTimerFields {
   isRunning: boolean;
   lastStoppedAt?: Date | null;
   totalMinutesSpent: number;
+  totalSecondsSpent: number;
   pagesCompleted?: number | null;
   remarks?: string | null;
 }
@@ -88,6 +89,10 @@ const taskSchema = new Schema<TaskDocument>(
       default: null,
     },
     totalMinutesSpent: {
+      type: Number,
+      default: 0,
+    },
+    totalSecondsSpent: {
       type: Number,
       default: 0,
     },
