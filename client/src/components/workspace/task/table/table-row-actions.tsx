@@ -19,6 +19,8 @@ import { deleteTaskMutationFn } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import EditTaskDialog from "../edit-task-dialog"; // Import the Edit Dialog
 import TaskDetailsDialog from "../task-details-dialog";
+import { useAuthContext } from "@/context/auth-provider";
+import { Permissions } from "@/constant";
 
 interface DataTableRowActionsProps {
   row: Row<TaskType>;
@@ -31,6 +33,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
+  const { hasPermission } = useAuthContext();
 
   const { mutate, isPending } = useMutation({
     mutationFn: deleteTaskMutationFn,
@@ -74,16 +77,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           <DropdownMenuItem className="cursor-pointer" onClick={() => setOpenEditDialog(true)}>
             <Pencil className="w-4 h-4 mr-2" /> Edit Task
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-
-          {/* Delete Task Option */}
-          <DropdownMenuItem
-            className="!text-destructive cursor-pointer"
-            onClick={() => setOpenDialog(true)}
-          >
-            Delete Task
-            <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          {hasPermission(Permissions.DELETE_TASK) ? (
+            <>
+              <DropdownMenuSeparator />
+              {/* Delete Task Option */}
+              <DropdownMenuItem
+                className="!text-destructive cursor-pointer"
+                onClick={() => setOpenDialog(true)}
+              >
+                Delete Task
+                <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
 

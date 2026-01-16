@@ -131,6 +131,43 @@ export const updateTaskService = async (
   return { updatedTask };
 };
 
+export const updateTaskStatusService = async (
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  status: string
+) => {
+  const project = await ProjectModel.findById(projectId);
+
+  if (!project || project.workspace.toString() !== workspaceId.toString()) {
+    throw new NotFoundException(
+      "Project not found or does not belong to this workspace"
+    );
+  }
+
+  const task = await TaskModel.findById(taskId);
+
+  if (!task || task.project.toString() !== projectId.toString()) {
+    throw new NotFoundException(
+      "Task not found or does not belong to this project"
+    );
+  }
+
+  const updatedTask = await TaskModel.findByIdAndUpdate(
+    taskId,
+    {
+      status,
+    },
+    { new: true }
+  );
+
+  if (!updatedTask) {
+    throw new BadRequestException("Failed to update task status");
+  }
+
+  return { updatedTask };
+};
+
 export const getAllTasksService = async (
   workspaceId: string,
   filters: {
