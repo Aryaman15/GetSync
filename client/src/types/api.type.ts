@@ -231,6 +231,8 @@ export type CreateTaskPayloadType = {
   data: {
     taskTypeCode: string;
     description: string;
+    chapter?: string;
+    pageRange?: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
     assignedTo: string;
@@ -245,6 +247,8 @@ export type EditTaskPayloadType = {
   data: Partial<{
     title: string;
     description: string;
+    chapter: string;
+    pageRange: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
     assignedTo: string;
@@ -257,6 +261,8 @@ export type TaskType = {
   _id: string;
   title: string;
   description?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
   project?: {
