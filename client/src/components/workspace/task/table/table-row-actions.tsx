@@ -47,7 +47,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           toast({ title: "Success", description: data.message, variant: "success" });
           setTimeout(() => setOpenDialog(false), 100);
         },
-        onError: (error) => {
+        onError: () => {
           toast({ title: "Note:", description: "Only Admin Can DELETE The Task", variant: "destructive" });
         },
       }
