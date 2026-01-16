@@ -26,15 +26,10 @@ const WorkspaceAnalytics = () => {
   const dashboardTasks = showAllTasks
     ? tasks
     : tasks.filter((task) => isAssignedToMe(task, user?._id));
-  const now = new Date();
-  const overdueTasks = dashboardTasks.filter((task) => {
-    if (!task.dueDate) return false;
-    const dueDate = new Date(task.dueDate);
-    return dueDate < now && task.status !== TaskStatusEnum.DONE;
-  });
   const completedTasks = dashboardTasks.filter(
     (task) => task.status === TaskStatusEnum.DONE
   );
+  const taskLeft = Math.max(0, dashboardTasks.length - completedTasks.length);
 
   return (
     <div className="grid gap-4 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
@@ -45,8 +40,8 @@ const WorkspaceAnalytics = () => {
       />
       <AnalyticsCard
         isLoading={isPending}
-        title="Overdue Task"
-        value={overdueTasks.length}
+        title="Task Left"
+        value={taskLeft}
       />
       <AnalyticsCard
         isLoading={isPending}
