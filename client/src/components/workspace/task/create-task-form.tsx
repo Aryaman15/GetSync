@@ -23,7 +23,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "../../ui/textarea";
 import { cn } from "@/lib/utils";
@@ -39,7 +38,8 @@ import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import useGetWorkspaceMembers from "@/hooks/api/use-get-workspace-members";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createTaskMutationFn } from "@/lib/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getTaskTypesQueryFn } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 
 export default function CreateTaskForm(props: {
@@ -55,6 +55,12 @@ export default function CreateTaskForm(props: {
     mutationFn: createTaskMutationFn,
   });
 
+  const { data: taskTypeData, isLoading: isTaskTypesLoading } = useQuery({
+    queryKey: ["task-types"],
+    queryFn: getTaskTypesQueryFn,
+    staleTime: Infinity,
+  });
+
   const { data, isLoading } = useGetProjectsInWorkspaceQuery({
     workspaceId,
     skip: !!projectId,
@@ -64,6 +70,7 @@ export default function CreateTaskForm(props: {
 
   const projects = data?.projects || [];
   const members = memberData?.members || [];
+  const taskTypes = taskTypeData?.items || [];
 
   //Workspace Projects
   const projectOptions = projects?.map((project) => {
@@ -99,8 +106,8 @@ export default function CreateTaskForm(props: {
   });
 
   const formSchema = z.object({
-    title: z.string().trim().min(1, {
-      message: "Title is required",
+    taskTypeCode: z.string().trim().min(1, {
+      message: "Task type is required",
     }),
     description: z.string().trim(),
     projectId: z.string().trim().min(1, {
@@ -129,7 +136,7 @@ export default function CreateTaskForm(props: {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      taskTypeCode: "",
       description: "",
       projectId: projectId ? projectId : "",
     },
@@ -140,6 +147,10 @@ export default function CreateTaskForm(props: {
 
   const statusOptions = transformOptions(taskStatusList);
   const priorityOptions = transformOptions(taskPriorityList);
+  const selectedTaskTypeCode = form.watch("taskTypeCode");
+  const selectedTaskType = taskTypes.find(
+    (taskType) => taskType.code === selectedTaskTypeCode
+  );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
@@ -198,19 +209,52 @@ export default function CreateTaskForm(props: {
             <div>
               <FormField
                 control={form.control}
-                name="title"
+                name="taskTypeCode"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="dark:text-[#f1f7feb5] text-sm">
-                      Task title
+                      Task Type
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Website Redesign"
-                        className="!h-[48px]"
-                        {...field}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a task type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <div className="w-full max-h-[200px] overflow-y-auto scrollbar">
+                          {isTaskTypesLoading && (
+                            <div className="my-2">
+                              <Loader className="w-4 h-4 place-self-center flex animate-spin" />
+                            </div>
+                          )}
+                          {taskTypes.map((taskType) => (
+                            <SelectItem
+                              className="cursor-pointer"
+                              key={taskType.code}
+                              value={taskType.code}
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                  {taskType.code}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {taskType.name}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </div>
+                      </SelectContent>
+                    </Select>
+                    {selectedTaskType ? (
+                      <p className="text-xs text-muted-foreground">
+                        {selectedTaskType.name}
+                      </p>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}

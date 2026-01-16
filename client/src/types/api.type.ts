@@ -229,7 +229,7 @@ export type CreateTaskPayloadType = {
   workspaceId: string;
   projectId: string;
   data: {
-    title: string;
+    taskTypeCode: string;
     description: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
@@ -257,6 +257,8 @@ export type TaskType = {
   _id: string;
   title: string;
   description?: string;
+  taskTypeCode?: string;
+  taskTypeName?: string;
   project?: {
     _id: string;
     emoji: string;
@@ -292,4 +294,13 @@ export type AllTaskResponseType = {
   message: string;
   tasks: TaskType[];
   pagination: PaginationType;
+};
+
+export type TaskTypeItem = {
+  code: string;
+  name: string;
+};
+
+export type TaskTypesResponseType = {
+  items: TaskTypeItem[];
 };

@@ -2,6 +2,9 @@ import { z } from "zod";
 import { TaskPriorityEnum, TaskStatusEnum } from "../enums/task.enum";
 
 export const titleSchema = z.string().trim().min(1).max(255);
+export const taskTypeCodeSchema = z.string().trim().min(1, {
+  message: "Task type is required",
+});
 export const descriptionSchema = z.string().trim().optional();
 
 export const assignedToSchema = z.string().trim().min(1).nullable().optional();
@@ -30,7 +33,7 @@ export const dueDateSchema = z
 export const taskIdSchema = z.string().trim().min(1);
 
 export const createTaskSchema = z.object({
-  title: titleSchema,
+  taskTypeCode: taskTypeCodeSchema,
   description: descriptionSchema,
   priority: prioritySchema,
   status: statusSchema,
