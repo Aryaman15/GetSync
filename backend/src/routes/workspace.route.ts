@@ -7,6 +7,8 @@ import {
   getWorkspaceAnalyticsController,
   getWorkspaceByIdController,
   getWorkspaceMembersController,
+  getWorkspaceProgressEmployeeController,
+  getWorkspaceProgressSummaryController,
   updateWorkspaceByIdController,
 } from "../controllers/workspace.controller";
 
@@ -34,6 +36,16 @@ workspaceRoutes.get("/members/:id", getWorkspaceMembersController);
 
 //To get the status of the completed task of a particular workspace
 workspaceRoutes.get("/analytics/:id", getWorkspaceAnalyticsController);
+
+// Progress analytics (admin only)
+workspaceRoutes.get(
+  "/progress/:id/summary",
+  getWorkspaceProgressSummaryController
+);
+workspaceRoutes.get(
+  "/progress/:id/employees/:userId",
+  getWorkspaceProgressEmployeeController
+);
 
 workspaceRoutes.get("/:id", getWorkspaceByIdController);
 
