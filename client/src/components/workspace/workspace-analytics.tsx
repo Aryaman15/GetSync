@@ -1,36 +1,56 @@
 import useWorkspaceId from "@/hooks/use-workspace-id";
 import AnalyticsCard from "./common/analytics-card";
 import { useQuery } from "@tanstack/react-query";
-import { getWorkspaceAnalyticsQueryFn } from "@/lib/api";
+import { getAllTasksQueryFn } from "@/lib/api";
+import { useAuthContext } from "@/context/auth-provider";
+import { TaskStatusEnum } from "@/constant";
+import { TaskType } from "@/types/api.type";
+import { isAssignedToMe } from "./task/task-assignment";
 
 const WorkspaceAnalytics = () => {
   const workspaceId = useWorkspaceId();
+  const { user } = useAuthContext();
 
   const { data, isPending } = useQuery({
-    queryKey: ["workspace-analytics", workspaceId],
-    queryFn: () => getWorkspaceAnalyticsQueryFn(workspaceId),
+    queryKey: ["all-tasks", workspaceId],
+    queryFn: () =>
+      getAllTasksQueryFn({
+        workspaceId,
+      }),
     staleTime: 0,
     enabled: !!workspaceId,
   });
 
-  const analytics = data?.analytics;
+  const tasks: TaskType[] = data?.tasks || [];
+  const dashboardTasks = tasks.filter((task) =>
+    isAssignedToMe(task, user?._id)
+  );
+  const now = new Date();
+  const overdueTasks = dashboardTasks.filter((task) => {
+    if (!task.dueDate) return false;
+    const dueDate = new Date(task.dueDate);
+    return dueDate < now && task.status !== TaskStatusEnum.DONE;
+  });
+  const completedTasks = dashboardTasks.filter(
+    (task) => task.status === TaskStatusEnum.DONE
+  );
 
   return (
     <div className="grid gap-4 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
       <AnalyticsCard
         isLoading={isPending}
         title="Total Task"
-        value={analytics?.totalTasks || 0}
+        value={dashboardTasks.length}
       />
       <AnalyticsCard
         isLoading={isPending}
         title="Overdue Task"
-        value={analytics?.overdueTasks || 0}
+        value={overdueTasks.length}
       />
       <AnalyticsCard
         isLoading={isPending}
         title="Completed Task"
-        value={analytics?.completedTasks || 0}
+        value={completedTasks.length}
       />
     </div>
   );

@@ -263,6 +263,7 @@ type TaskTimerFields = {
   isRunning?: boolean;
   lastStoppedAt?: string | null;
   totalMinutesSpent?: number;
+  totalSecondsSpent?: number;
   pagesCompleted?: number | null;
   remarks?: string | null;
 };
@@ -273,6 +274,7 @@ export type TaskType = TaskTimerFields & {
   description?: string;
   chapter?: string | null;
   pageRange?: string | null;
+  assignedToId?: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
   project?: {

@@ -5,10 +5,11 @@ import {
   stopTaskTimerSchema,
   taskIdSchema,
   updateTaskSchema,
+  updateTaskStatusSchema,
 } from "../validation/task.validation";
 import { projectIdSchema } from "../validation/project.validation";
 import { workspaceIdSchema } from "../validation/workspace.validation";
-import { Permissions } from "../enums/role.enum";
+import { Permissions, Roles } from "../enums/role.enum";
 import { getMemberRoleInWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import {
@@ -19,6 +20,7 @@ import {
   startTaskTimerService,
   stopTaskTimerService,
   updateTaskService,
+  updateTaskStatusService,
 } from "../services/task.service";
 import { HTTPSTATUS } from "../config/http.config";
 
@@ -51,8 +53,6 @@ export const updateTaskController = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?._id;
 
-    const body = updateTaskSchema.parse(req.body);
-
     const taskId = taskIdSchema.parse(req.params.id);
     const projectId = projectIdSchema.parse(req.params.projectId);
     const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
@@ -60,6 +60,22 @@ export const updateTaskController = asyncHandler(
     const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
     roleGuard(role, [Permissions.EDIT_TASK]);
 
+    if (role === Roles.MEMBER) {
+      const body = updateTaskStatusSchema.parse(req.body);
+      const { updatedTask } = await updateTaskStatusService(
+        workspaceId,
+        projectId,
+        taskId,
+        body.status
+      );
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Task updated successfully",
+        task: updatedTask,
+      });
+    }
+
+    const body = updateTaskSchema.parse(req.body);
     const { updatedTask } = await updateTaskService(
       workspaceId,
       projectId,

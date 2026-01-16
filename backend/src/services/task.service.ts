@@ -131,6 +131,43 @@ export const updateTaskService = async (
   return { updatedTask };
 };
 
+export const updateTaskStatusService = async (
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  status: string
+) => {
+  const project = await ProjectModel.findById(projectId);
+
+  if (!project || project.workspace.toString() !== workspaceId.toString()) {
+    throw new NotFoundException(
+      "Project not found or does not belong to this workspace"
+    );
+  }
+
+  const task = await TaskModel.findById(taskId);
+
+  if (!task || task.project.toString() !== projectId.toString()) {
+    throw new NotFoundException(
+      "Task not found or does not belong to this project"
+    );
+  }
+
+  const updatedTask = await TaskModel.findByIdAndUpdate(
+    taskId,
+    {
+      status,
+    },
+    { new: true }
+  );
+
+  if (!updatedTask) {
+    throw new BadRequestException("Failed to update task status");
+  }
+
+  return { updatedTask };
+};
+
 export const getAllTasksService = async (
   workspaceId: string,
   filters: {
@@ -314,10 +351,11 @@ export const stopTaskTimerService = async (
   }
 
   const now = new Date();
-  const durationMinutes = Math.max(
+  const durationSeconds = Math.max(
     1,
-    Math.floor((now.getTime() - task.activeStartAt.getTime()) / 60000)
+    Math.floor((now.getTime() - task.activeStartAt.getTime()) / 1000)
   );
+  const durationMinutes = Math.max(1, Math.floor(durationSeconds / 60));
 
   await TaskWorkLogModel.create({
     taskId: task._id,
@@ -329,13 +367,17 @@ export const stopTaskTimerService = async (
     remarks: body.remarks ?? null,
   });
 
-  task.totalMinutesSpent += durationMinutes;
+  const currentSeconds =
+    task.totalSecondsSpent ?? (task.totalMinutesSpent ?? 0) * 60;
+  task.totalSecondsSpent = currentSeconds + durationSeconds;
+  task.totalMinutesSpent = Math.floor(task.totalSecondsSpent / 60);
   task.lastStoppedAt = now;
   task.isRunning = false;
   task.activeStartAt = null;
 
   if (body.pagesCompleted !== undefined) {
-    task.pagesCompleted = body.pagesCompleted;
+    const currentPages = task.pagesCompleted ?? 0;
+    task.pagesCompleted = currentPages + body.pagesCompleted;
   }
 
   if (body.remarks !== undefined) {
