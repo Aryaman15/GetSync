@@ -12,14 +12,24 @@ export const createTaskService = async (
   body: {
     taskTypeCode: string;
     description?: string;
+    chapter?: string;
+    pageRange?: string;
     priority: string;
     status: string;
     assignedTo?: string | null;
     dueDate?: string;
   }
 ) => {
-  const { taskTypeCode, description, priority, status, assignedTo, dueDate } =
-    body;
+  const {
+    taskTypeCode,
+    description,
+    chapter,
+    pageRange,
+    priority,
+    status,
+    assignedTo,
+    dueDate,
+  } = body;
 
   const project = await ProjectModel.findById(projectId);
 
@@ -50,6 +60,8 @@ export const createTaskService = async (
     taskTypeCode: taskType.code,
     taskTypeName: taskType.name,
     description,
+    chapter,
+    pageRange,
     priority: priority || TaskPriorityEnum.MEDIUM,
     status: status || TaskStatusEnum.TODO,
     assignedTo,
@@ -71,6 +83,8 @@ export const updateTaskService = async (
   body: {
     title: string;
     description?: string;
+    chapter?: string;
+    pageRange?: string;
     priority: string;
     status: string;
     assignedTo?: string | null;

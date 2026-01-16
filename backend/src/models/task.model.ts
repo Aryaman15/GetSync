@@ -13,6 +13,8 @@ export interface TaskDocument extends Document {
   description: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   project: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
   status: TaskStatusEnumType;
@@ -48,6 +50,16 @@ const taskSchema = new Schema<TaskDocument>(
     taskTypeName: {
       type: String,
       trim: true,
+    },
+    chapter: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    pageRange: {
+      type: String,
+      trim: true,
+      default: null,
     },
     project: {
       type: Schema.Types.ObjectId,

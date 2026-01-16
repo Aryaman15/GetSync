@@ -54,6 +54,10 @@ const RecentTasks = () => {
           const name = task?.assignedTo?.name || "";
           const initials = getAvatarFallbackText(name);
           const avatarColor = getAvatarColor(name);
+          const metaParts = [
+            task.chapter ? `Chapter: ${task.chapter}` : null,
+            task.pageRange ? `Pages: ${task.pageRange}` : null,
+          ].filter(Boolean);
           return (
             <li
               key={task._id}
@@ -67,6 +71,11 @@ const RecentTasks = () => {
                 <p className="text-md font-semibold text-gray-800 truncate">
                   {task.title}
                 </p>
+                {metaParts.length > 0 ? (
+                  <span className="text-xs text-gray-500">
+                    {metaParts.join(" • ")}
+                  </span>
+                ) : null}
                 <span className="text-sm text-gray-500">
                   Due: {task.dueDate ? format(task.dueDate, "PPP") : null}
                 </span>

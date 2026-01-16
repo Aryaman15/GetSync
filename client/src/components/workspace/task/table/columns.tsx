@@ -52,14 +52,27 @@ export const getColumns = (projectId?: string): ColumnDef<TaskType>[] => {
         <DataTableColumnHeader column={column} title="Title" />
       ),
       cell: ({ row }) => {
+        const metaParts = [
+          row.original.chapter ? `Chapter: ${row.original.chapter}` : null,
+          row.original.pageRange
+            ? `Pages: ${row.original.pageRange}`
+            : null,
+        ].filter(Boolean);
         return (
-          <div className="flex flex-wrap space-x-2">
-            <Badge variant="outline" className="capitalize shrink-0 h-[25px]">
-              {row.original.taskCode}
-            </Badge>
-            <span className="block lg:max-w-[220px] max-w-[200px] font-medium">
-              {row.original.title}
-            </span>
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap items-center space-x-2">
+              <Badge variant="outline" className="capitalize shrink-0 h-[25px]">
+                {row.original.taskCode}
+              </Badge>
+              <span className="block lg:max-w-[220px] max-w-[200px] font-medium">
+                {row.original.title}
+              </span>
+            </div>
+            {metaParts.length > 0 ? (
+              <span className="text-xs text-muted-foreground">
+                {metaParts.join(" • ")}
+              </span>
+            ) : null}
           </div>
         );
       },
