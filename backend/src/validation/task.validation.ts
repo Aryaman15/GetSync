@@ -55,3 +55,8 @@ export const updateTaskSchema = z.object({
   assignedTo: assignedToSchema,
   dueDate: dueDateSchema,
 });
+
+export const stopTaskTimerSchema = z.object({
+  pagesCompleted: z.number().int().min(0).optional(),
+  remarks: z.string().trim().optional(),
+});

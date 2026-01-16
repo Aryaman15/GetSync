@@ -1,9 +1,18 @@
 import { getTaskTypeByCode } from "../config/task-types";
 import { TaskPriorityEnum, TaskStatusEnum } from "../enums/task.enum";
+import { Roles } from "../enums/role.enum";
+import TaskWorkLogModel from "../models/task-work-log.model";
 import MemberModel from "../models/member.model";
 import ProjectModel from "../models/project.model";
 import TaskModel from "../models/task.model";
-import { BadRequestException, NotFoundException } from "../utils/appError";
+import { HTTPSTATUS } from "../config/http.config";
+import { getMemberRoleInWorkspace } from "./member.service";
+import {
+  BadRequestException,
+  HttpException,
+  NotFoundException,
+  UnauthorizedException,
+} from "../utils/appError";
 
 export const createTaskService = async (
   workspaceId: string,
@@ -237,4 +246,103 @@ export const deleteTaskService = async (
   }
 
   return;
+};
+
+const ensureTaskTimerAccess = async (
+  taskId: string,
+  userId: string
+) => {
+  const task = await TaskModel.findById(taskId);
+
+  if (!task) {
+    throw new NotFoundException("Task not found.");
+  }
+
+  const { role } = await getMemberRoleInWorkspace(
+    userId,
+    task.workspace.toString()
+  );
+
+  const isPrivileged = role === Roles.OWNER || role === Roles.ADMIN;
+  const isAssignee = task.assignedTo?.toString() === userId.toString();
+
+  if (!isPrivileged && !isAssignee) {
+    throw new UnauthorizedException(
+      "You do not have permission to manage this task timer."
+    );
+  }
+
+  return task;
+};
+
+export const startTaskTimerService = async (
+  taskId: string,
+  userId: string
+) => {
+  const task = await ensureTaskTimerAccess(taskId, userId);
+
+  if (task.isRunning) {
+    throw new HttpException("Task timer is already running.", HTTPSTATUS.CONFLICT);
+  }
+
+  const now = new Date();
+
+  if (!task.firstStartedAt) {
+    task.firstStartedAt = now;
+  }
+
+  task.activeStartAt = now;
+  task.isRunning = true;
+
+  await task.save();
+
+  return { task };
+};
+
+export const stopTaskTimerService = async (
+  taskId: string,
+  userId: string,
+  body: {
+    pagesCompleted?: number;
+    remarks?: string;
+  }
+) => {
+  const task = await ensureTaskTimerAccess(taskId, userId);
+
+  if (!task.isRunning || !task.activeStartAt) {
+    throw new HttpException("Task timer is not running.", HTTPSTATUS.CONFLICT);
+  }
+
+  const now = new Date();
+  const durationMinutes = Math.max(
+    1,
+    Math.floor((now.getTime() - task.activeStartAt.getTime()) / 60000)
+  );
+
+  await TaskWorkLogModel.create({
+    taskId: task._id,
+    userId,
+    startedAt: task.activeStartAt,
+    stoppedAt: now,
+    durationMinutes,
+    pagesCompleted: body.pagesCompleted ?? null,
+    remarks: body.remarks ?? null,
+  });
+
+  task.totalMinutesSpent += durationMinutes;
+  task.lastStoppedAt = now;
+  task.isRunning = false;
+  task.activeStartAt = null;
+
+  if (body.pagesCompleted !== undefined) {
+    task.pagesCompleted = body.pagesCompleted;
+  }
+
+  if (body.remarks !== undefined) {
+    task.remarks = body.remarks;
+  }
+
+  await task.save();
+
+  return { task };
 };
