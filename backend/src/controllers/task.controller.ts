@@ -60,19 +60,28 @@ export const updateTaskController = asyncHandler(
     const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
     roleGuard(role, [Permissions.EDIT_TASK]);
 
-    const isMember = role === Roles.MEMBER;
-    const body = isMember
-      ? updateTaskStatusSchema.parse(req.body)
-      : updateTaskSchema.parse(req.body);
+    if (role === Roles.MEMBER) {
+      const body = updateTaskStatusSchema.parse(req.body);
+      const { updatedTask } = await updateTaskStatusService(
+        workspaceId,
+        projectId,
+        taskId,
+        body.status
+      );
 
-    const { updatedTask } = isMember
-      ? await updateTaskStatusService(
-          workspaceId,
-          projectId,
-          taskId,
-          body.status
-        )
-      : await updateTaskService(workspaceId, projectId, taskId, body);
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Task updated successfully",
+        task: updatedTask,
+      });
+    }
+
+    const body = updateTaskSchema.parse(req.body);
+    const { updatedTask } = await updateTaskService(
+      workspaceId,
+      projectId,
+      taskId,
+      body
+    );
 
     return res.status(HTTPSTATUS.OK).json({
       message: "Task updated successfully",
