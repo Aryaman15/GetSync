@@ -6,8 +6,18 @@ import Members from "@/page/workspace/Members";
 import ProjectDetails from "@/page/workspace/ProjectDetails";
 import Settings from "@/page/workspace/Settings";
 import Tasks from "@/page/workspace/Tasks";
-import { AUTH_ROUTES, BASE_ROUTE, PROTECTED_ROUTES } from "./routePaths";
+import { AUTH_ROUTES, BASE_ROUTE, PROTECTED_ROUTES, PRODUCTION_ROUTES } from "./routePaths";
 import InviteUser from "@/page/invite/InviteUser";
+import ProductionLogin from "@/page/production/ProductionLogin";
+import AdminDashboard from "@/page/production/AdminDashboard";
+import AdminCreateJob from "@/page/production/AdminCreateJob";
+import AdminReviewInbox from "@/page/production/AdminReviewInbox";
+import AdminEmployees from "@/page/production/AdminEmployees";
+import AdminEmployeeInsights from "@/page/production/AdminEmployeeInsights";
+import AdminJobsManagement from "@/page/production/AdminJobsManagement";
+import EmployeeWorkQueue from "@/page/production/EmployeeWorkQueue";
+import EmployeeWorkScreen from "@/page/production/EmployeeWorkScreen";
+import EmployeeCompletedWork from "@/page/production/EmployeeCompletedWork";
 
 export const authenticationRoutePaths = [
   { path: AUTH_ROUTES.SIGN_IN, element: <SignIn /> },
@@ -25,4 +35,17 @@ export const protectedRoutePaths = [
 
 export const baseRoutePaths = [
   { path: BASE_ROUTE.INVITE_URL, element: <InviteUser /> },
+  { path: PRODUCTION_ROUTES.LOGIN, element: <ProductionLogin /> },
+];
+
+export const productionProtectedRoutePaths = [
+  { path: PRODUCTION_ROUTES.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+  { path: PRODUCTION_ROUTES.ADMIN_CREATE_JOB, element: <AdminCreateJob /> },
+  { path: PRODUCTION_ROUTES.ADMIN_REVIEW, element: <AdminReviewInbox /> },
+  { path: PRODUCTION_ROUTES.ADMIN_EMPLOYEES, element: <AdminEmployees /> },
+  { path: PRODUCTION_ROUTES.ADMIN_EMPLOYEE_INSIGHTS, element: <AdminEmployeeInsights /> },
+  { path: PRODUCTION_ROUTES.ADMIN_JOBS, element: <AdminJobsManagement /> },
+  { path: PRODUCTION_ROUTES.EMPLOYEE_QUEUE, element: <EmployeeWorkQueue /> },
+  { path: PRODUCTION_ROUTES.EMPLOYEE_JOB, element: <EmployeeWorkScreen /> },
+  { path: PRODUCTION_ROUTES.EMPLOYEE_COMPLETED, element: <EmployeeCompletedWork /> },
 ];

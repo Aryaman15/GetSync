@@ -5,10 +5,13 @@ import {
   authenticationRoutePaths,
   baseRoutePaths,
   protectedRoutePaths,
+  productionProtectedRoutePaths,
 } from "./common/routes";
 import AppLayout from "@/layout/app.layout";
 import BaseLayout from "@/layout/base.layout";
 import NotFound from "@/page/errors/NotFound";
+import ProductionLayout from "@/layout/production.layout";
+import ProductionProtectedRoute from "./production-protected.route";
 
 function AppRoutes() {
   return (
@@ -36,6 +39,18 @@ function AppRoutes() {
         <Route path="/" element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             {protectedRoutePaths.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
+          </Route>
+        </Route>
+
+        <Route path="/" element={<ProductionProtectedRoute />}>
+          <Route element={<ProductionLayout />}>
+            {productionProtectedRoutePaths.map((route) => (
               <Route
                 key={route.path}
                 path={route.path}

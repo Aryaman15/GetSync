@@ -20,6 +20,14 @@ import workspaceRoutes from "./routes/workspace.route";
 import memberRoutes from "./routes/member.routes";
 import projectRoutes from "./routes/project.routes";
 import taskRoutes from "./routes/task.routes";
+import taskTypeRoutes from "./routes/production-task-types.route";
+import jobsRoutes from "./routes/production-jobs.route";
+import timerRoutes from "./routes/production-timer.route";
+import notificationRoutes from "./routes/production-notifications.route";
+import presenceRoutes from "./routes/production-presence.route";
+import reportRoutes from "./routes/production-reports.route";
+import employeeRoutes from "./routes/production-employees.route";
+import employeeJobsRoutes from "./routes/production-employee-jobs.route";
 
 const app=express();
 const BASE_PATH=config.BASE_PATH;
@@ -59,6 +67,14 @@ app.use(`${BASE_PATH}/workspace`,isAuthenticated,workspaceRoutes);
 app.use(`${BASE_PATH}/member`,isAuthenticated,memberRoutes);
 app.use(`${BASE_PATH}/project`,isAuthenticated,projectRoutes);
 app.use(`${BASE_PATH}/task`,isAuthenticated,taskRoutes);
+app.use(`${BASE_PATH}/task-types`, taskTypeRoutes);
+app.use(`${BASE_PATH}/jobs`, jobsRoutes);
+app.use(`${BASE_PATH}`, timerRoutes);
+app.use(`${BASE_PATH}/notifications`, notificationRoutes);
+app.use(`${BASE_PATH}/presence`, presenceRoutes);
+app.use(`${BASE_PATH}`, reportRoutes);
+app.use(`${BASE_PATH}/employees`, employeeRoutes);
+app.use(`${BASE_PATH}/employee`, employeeJobsRoutes);
 
 app.use(errorHandler);
 
@@ -66,5 +82,4 @@ app.listen(config.PORT,async()=>{
     console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
     await connectDatabase();
 })
-
 

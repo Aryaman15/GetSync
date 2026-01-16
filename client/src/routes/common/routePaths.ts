@@ -19,3 +19,16 @@ export const PROTECTED_ROUTES = {
 export const BASE_ROUTE = {
   INVITE_URL: "/invite/workspace/:inviteCode/join",
 };
+
+export const PRODUCTION_ROUTES = {
+  LOGIN: "/production/login",
+  ADMIN_DASHBOARD: "/production/admin",
+  ADMIN_CREATE_JOB: "/production/admin/create-job",
+  ADMIN_REVIEW: "/production/admin/review",
+  ADMIN_EMPLOYEES: "/production/admin/employees",
+  ADMIN_EMPLOYEE_INSIGHTS: "/production/admin/employees/:employeeId",
+  ADMIN_JOBS: "/production/admin/jobs",
+  EMPLOYEE_QUEUE: "/production/employee",
+  EMPLOYEE_JOB: "/production/employee/jobs/:jobId",
+  EMPLOYEE_COMPLETED: "/production/employee/completed",
+};

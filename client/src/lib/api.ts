@@ -20,6 +20,128 @@ export const getCurrentUserQueryFn =
     return response.data;
   };
 
+// ******** Production Workflow ********
+export const previewEmployeeMutationFn = async (data: { employeeId: string }) => {
+  const response = await API.post("/auth/preview", data);
+  return response.data;
+};
+
+export const loginEmployeeMutationFn = async (data: {
+  employeeId: string;
+  password: string;
+}) => {
+  const response = await API.post("/auth/login", data);
+  return response.data;
+};
+
+export const logoutEmployeeMutationFn = async () => {
+  const response = await API.post("/auth/logout");
+  return response.data;
+};
+
+export const getEmployeeMeQueryFn = async () => {
+  const response = await API.get("/auth/me");
+  return response.data;
+};
+
+export const getTaskTypesQueryFn = async () => {
+  const response = await API.get("/task-types");
+  return response.data;
+};
+
+export const createJobMutationFn = async (data: Record<string, unknown>) => {
+  const response = await API.post("/jobs", data);
+  return response.data;
+};
+
+export const getJobsQueryFn = async (params?: Record<string, string>) => {
+  const response = await API.get("/jobs", { params });
+  return response.data;
+};
+
+export const updateJobMutationFn = async (jobId: string, data: Record<string, unknown>) => {
+  const response = await API.patch(`/jobs/${jobId}`, data);
+  return response.data;
+};
+
+export const getEmployeeJobsQueryFn = async (params?: Record<string, string>) => {
+  const response = await API.get("/employee/jobs", { params });
+  return response.data;
+};
+
+export const getJobDetailQueryFn = async (jobId: string) => {
+  const response = await API.get(`/jobs/${jobId}`);
+  return response.data;
+};
+
+export const submitJobMutationFn = async (jobId: string) => {
+  const response = await API.post(`/jobs/${jobId}/submit`);
+  return response.data;
+};
+
+export const approveJobMutationFn = async (jobId: string) => {
+  const response = await API.post(`/jobs/${jobId}/review/approve`);
+  return response.data;
+};
+
+export const requestChangesJobMutationFn = async (jobId: string, message: string) => {
+  const response = await API.post(`/jobs/${jobId}/review/changes-requested`, { message });
+  return response.data;
+};
+
+export const startTimerMutationFn = async (jobId: string) => {
+  const response = await API.post(`/jobs/${jobId}/timer/start`);
+  return response.data;
+};
+
+export const stopTimerMutationFn = async (
+  jobId: string,
+  data: { pageCountDone?: number; remarks?: string }
+) => {
+  const response = await API.post(`/jobs/${jobId}/timer/stop`, data);
+  return response.data;
+};
+
+export const getActiveTimerQueryFn = async () => {
+  const response = await API.get(`/timers/active`);
+  return response.data;
+};
+
+export const getNotificationsQueryFn = async () => {
+  const response = await API.get(`/notifications`);
+  return response.data;
+};
+
+export const sendPresenceHeartbeatMutationFn = async () => {
+  const response = await API.post(`/presence/heartbeat`);
+  return response.data;
+};
+
+export const markNotificationReadMutationFn = async (id: string) => {
+  const response = await API.post(`/notifications/${id}/read`);
+  return response.data;
+};
+
+export const markAllNotificationsReadMutationFn = async () => {
+  const response = await API.post(`/notifications/read-all`);
+  return response.data;
+};
+
+export const getEmployeesQueryFn = async () => {
+  const response = await API.get(`/employees`);
+  return response.data;
+};
+
+export const getEmployeeInsightsQueryFn = async (employeeId: string) => {
+  const response = await API.get(`/employees/${employeeId}/insights`);
+  return response.data;
+};
+
+export const getSummaryReportQueryFn = async () => {
+  const response = await API.get(`/reports/summary`);
+  return response.data;
+};
+
 //********* WORKSPACE ****************
 //************* */
 

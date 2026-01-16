@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "seed": "ts-node src/seeders/role.seeder.ts",
+    "seed:production": "ts-node src/seeders/production.seeder.ts",
     "dev": "ts-node-dev --files src/index.ts",
     "build": "tsc && cp /package.json ./dist",
     "start": "node dist/index.js"
