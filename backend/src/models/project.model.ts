@@ -4,6 +4,10 @@ export interface ProjectDocument extends Document {
   name: string;
   description: string | null; // Optional description for the project
   emoji: string;
+  clientId?: string;
+  clientName?: string;
+  projectId?: string;
+  totalChapters?: number;
   workspace: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -25,6 +29,26 @@ const projectSchema = new Schema<ProjectDocument>(
       default: "📊",
     },
     description: { type: String, required: false },
+    clientId: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    clientName: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    projectId: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    totalChapters: {
+      type: Number,
+      required: false,
+      min: 1,
+    },
     workspace: {
       type: Schema.Types.ObjectId,
       ref: "Workspace",

@@ -1,6 +1,6 @@
-import { string } from "zod";
 import { UserDocument } from "../models/user.model"
-import { SignOptions } from "jsonwebtoken";
+import type { SignOptions } from "jsonwebtoken";
+import type { StringValue } from "ms";
 import { config } from "../config/app.config";
 export type AccessTPayload={
     userId:UserDocument["_id"];
@@ -15,6 +15,6 @@ const defaults: SignOptions={
 };
 
 export const accessTokenSignOptions: SignOptsAndSecret={
-    expiresIn:config.JWT_EXPIRES_IN,
+    expiresIn:config.JWT_EXPIRES_IN as StringValue,
     secret:config.JWT_SECRET,
 }
