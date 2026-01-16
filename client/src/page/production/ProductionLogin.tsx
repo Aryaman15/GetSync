@@ -5,11 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { previewEmployeeMutationFn, loginEmployeeMutationFn } from "@/lib/api";
+import {
+  loginEmployeeByRoleMutationFn,
+  previewEmployeeByRoleMutationFn,
+} from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { EmployeeRole } from "@/types/production";
 
-const ProductionLogin = () => {
+type ProductionLoginProps = {
+  role: EmployeeRole;
+};
+
+const ProductionLogin = ({ role }: ProductionLoginProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
   const [employeeId, setEmployeeId] = useState("");
@@ -21,7 +28,8 @@ const ProductionLogin = () => {
   } | null>(null);
 
   const previewMutation = useMutation({
-    mutationFn: previewEmployeeMutationFn,
+    mutationFn: (payload: { employeeId: string }) =>
+      previewEmployeeByRoleMutationFn(role, payload),
     onSuccess: (data) => {
       if (!data.exists) {
         toast({ title: "Employee not found", variant: "destructive" });
@@ -38,7 +46,8 @@ const ProductionLogin = () => {
   });
 
   const loginMutation = useMutation({
-    mutationFn: loginEmployeeMutationFn,
+    mutationFn: (payload: { employeeId: string; password: string }) =>
+      loginEmployeeByRoleMutationFn(role, payload),
     onSuccess: (data) => {
       toast({ title: "Welcome back", description: "Session started." });
       if (data.employee?.role === "ADMIN") {
@@ -65,7 +74,9 @@ const ProductionLogin = () => {
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
       <Card className="w-full max-w-md bg-slate-900 border-slate-800">
         <CardHeader>
-          <CardTitle className="text-xl">Publishing Workflow Login</CardTitle>
+          <CardTitle className="text-xl">
+            {role === "ADMIN" ? "Admin Login" : "Employee Login"}
+          </CardTitle>
           <p className="text-sm text-slate-400">
             Secure entry for production teams and admins.
           </p>

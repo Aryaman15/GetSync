@@ -26,11 +26,29 @@ export const previewEmployeeMutationFn = async (data: { employeeId: string }) =>
   return response.data;
 };
 
+export const previewEmployeeByRoleMutationFn = async (
+  role: "ADMIN" | "EMPLOYEE",
+  data: { employeeId: string }
+) => {
+  const route = role === "ADMIN" ? "/auth/preview/admin" : "/auth/preview/employee";
+  const response = await API.post(route, data);
+  return response.data;
+};
+
 export const loginEmployeeMutationFn = async (data: {
   employeeId: string;
   password: string;
 }) => {
   const response = await API.post("/auth/login", data);
+  return response.data;
+};
+
+export const loginEmployeeByRoleMutationFn = async (
+  role: "ADMIN" | "EMPLOYEE",
+  data: { employeeId: string; password: string }
+) => {
+  const route = role === "ADMIN" ? "/auth/login/admin" : "/auth/login/employee";
+  const response = await API.post(route, data);
   return response.data;
 };
 

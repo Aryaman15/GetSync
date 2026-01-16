@@ -8,7 +8,8 @@ import Settings from "@/page/workspace/Settings";
 import Tasks from "@/page/workspace/Tasks";
 import { AUTH_ROUTES, BASE_ROUTE, PROTECTED_ROUTES, PRODUCTION_ROUTES } from "./routePaths";
 import InviteUser from "@/page/invite/InviteUser";
-import ProductionLogin from "@/page/production/ProductionLogin";
+import ProductionLoginAdmin from "@/page/production/ProductionLoginAdmin";
+import ProductionLoginEmployee from "@/page/production/ProductionLoginEmployee";
 import AdminDashboard from "@/page/production/AdminDashboard";
 import AdminCreateJob from "@/page/production/AdminCreateJob";
 import AdminReviewInbox from "@/page/production/AdminReviewInbox";
@@ -35,7 +36,9 @@ export const protectedRoutePaths = [
 
 export const baseRoutePaths = [
   { path: BASE_ROUTE.INVITE_URL, element: <InviteUser /> },
-  { path: PRODUCTION_ROUTES.LOGIN, element: <ProductionLogin /> },
+  { path: PRODUCTION_ROUTES.LOGIN, element: <ProductionLoginEmployee /> },
+  { path: PRODUCTION_ROUTES.LOGIN_ADMIN, element: <ProductionLoginAdmin /> },
+  { path: PRODUCTION_ROUTES.LOGIN_EMPLOYEE, element: <ProductionLoginEmployee /> },
 ];
 
 export const productionProtectedRoutePaths = [

@@ -39,7 +39,8 @@ npm run seed:production
 
 ## Production Workflow URLs
 
-- Employee login: `http://localhost:5173/production/login`
+- Admin login: `http://localhost:5173/production/login/admin`
+- Employee login: `http://localhost:5173/production/login/employee`
 - Admin dashboard: `http://localhost:5173/production/admin`
 - Employee queue: `http://localhost:5173/production/employee`
 

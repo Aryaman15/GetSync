@@ -19,7 +19,9 @@ const ProductionProtectedRoute = () => {
   }
 
   if (!data?.employee) {
-    return <Navigate to="/production/login" state={{ from: location }} replace />;
+    return (
+      <Navigate to="/production/login/employee" state={{ from: location }} replace />
+    );
   }
 
   return <Outlet />;

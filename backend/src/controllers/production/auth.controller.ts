@@ -6,6 +6,7 @@ import {
   authLoginSchema,
   authPreviewSchema,
 } from "../../validation/production.validation";
+import { EmployeeRole } from "../../enums/production.enum";
 
 export const previewEmployeeController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -28,6 +29,28 @@ export const previewEmployeeController = asyncHandler(
     });
   }
 );
+
+export const previewEmployeeByRoleController = (role: EmployeeRole) =>
+  asyncHandler(async (req: Request, res: Response) => {
+    const body = authPreviewSchema.parse(req.body);
+    const employee = await EmployeeModel.findOne({
+      employeeId: body.employeeId,
+      role,
+    });
+
+    if (!employee) {
+      return res.status(HTTPSTATUS.OK).json({
+        exists: false,
+      });
+    }
+
+    return res.status(HTTPSTATUS.OK).json({
+      exists: true,
+      fullName: employee.fullName,
+      phone: employee.phone,
+      role: employee.role,
+    });
+  });
 
 export const employeeLoginController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -70,6 +93,48 @@ export const employeeLoginController = asyncHandler(
     });
   }
 );
+
+export const employeeLoginByRoleController = (role: EmployeeRole) =>
+  asyncHandler(async (req: Request, res: Response) => {
+    const body = authLoginSchema.parse(req.body);
+
+    const employee = await EmployeeModel.findOne({
+      employeeId: body.employeeId,
+      role,
+    }).select("+passwordHash");
+
+    if (!employee) {
+      return res.status(HTTPSTATUS.UNAUTHORIZED).json({
+        message: "Invalid employee ID or password",
+      });
+    }
+
+    const isValid = await employee.comparePassword(body.password);
+    if (!isValid) {
+      return res.status(HTTPSTATUS.UNAUTHORIZED).json({
+        message: "Invalid employee ID or password",
+      });
+    }
+
+    employee.lastSeenAt = new Date();
+    await employee.save();
+
+    req.session = {
+      employeeId: employee._id.toString(),
+    };
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Logged in successfully",
+      employee: {
+        id: employee._id,
+        employeeId: employee.employeeId,
+        fullName: employee.fullName,
+        phone: employee.phone,
+        role: employee.role,
+        workspaceId: employee.workspaceId,
+      },
+    });
+  });
 
 export const employeeLogoutController = asyncHandler(
   async (req: Request, res: Response) => {

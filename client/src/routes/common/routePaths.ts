@@ -22,6 +22,8 @@ export const BASE_ROUTE = {
 
 export const PRODUCTION_ROUTES = {
   LOGIN: "/production/login",
+  LOGIN_ADMIN: "/production/login/admin",
+  LOGIN_EMPLOYEE: "/production/login/employee",
   ADMIN_DASHBOARD: "/production/admin",
   ADMIN_CREATE_JOB: "/production/admin/create-job",
   ADMIN_REVIEW: "/production/admin/review",
