@@ -7,12 +7,24 @@ import {
 } from "../enums/task.enum";
 import { generateTaskCode } from "../utils/uuid";
 
-export interface TaskDocument extends Document {
+interface TaskTimerFields {
+  firstStartedAt?: Date | null;
+  activeStartAt?: Date | null;
+  isRunning: boolean;
+  lastStoppedAt?: Date | null;
+  totalMinutesSpent: number;
+  pagesCompleted?: number | null;
+  remarks?: string | null;
+}
+
+export interface TaskDocument extends Document, TaskTimerFields {
   taskCode: string;
   title: string;
   description: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   project: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
   status: TaskStatusEnumType;
@@ -48,6 +60,45 @@ const taskSchema = new Schema<TaskDocument>(
     taskTypeName: {
       type: String,
       trim: true,
+    },
+    chapter: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    pageRange: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    firstStartedAt: {
+      type: Date,
+      default: null,
+    },
+    activeStartAt: {
+      type: Date,
+      default: null,
+    },
+    isRunning: {
+      type: Boolean,
+      default: false,
+    },
+    lastStoppedAt: {
+      type: Date,
+      default: null,
+    },
+    totalMinutesSpent: {
+      type: Number,
+      default: 0,
+    },
+    pagesCompleted: {
+      type: Number,
+      default: null,
+    },
+    remarks: {
+      type: String,
+      trim: true,
+      default: null,
     },
     project: {
       type: Schema.Types.ObjectId,

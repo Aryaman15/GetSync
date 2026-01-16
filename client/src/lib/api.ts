@@ -1,5 +1,5 @@
 import API from "./axios-client";
-import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProjectByIdPayloadType, ProjectResponseType, registerType, TaskTypesResponseType, WorkspaceByIdResponseType } from "@/types/api.type";
+import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProjectByIdPayloadType, ProjectResponseType, registerType, StopTaskTimerPayloadType, TaskTimerPayloadType, TaskType, TaskTypesResponseType, WorkspaceByIdResponseType } from "@/types/api.type";
 
 export const loginMutationFn = async (
   data: loginType
@@ -156,6 +156,21 @@ export const getTaskTypesQueryFn = async (): Promise<TaskTypesResponseType> => {
   return response.data;
 };
 
+export const getTaskByIdQueryFn = async ({
+  taskId,
+  projectId,
+  workspaceId,
+}: {
+  taskId: string;
+  projectId: string;
+  workspaceId: string;
+}): Promise<{ message: string; task: TaskType }> => {
+  const response = await API.get(
+    `/task/${taskId}/project/${projectId}/workspace/${workspaceId}`
+  );
+  return response.data;
+};
+
 export const deleteProjectMutationFn = async ({
   workspaceId,
   projectId,
@@ -180,6 +195,21 @@ export const createTaskMutationFn = async ({
     `/task/project/${projectId}/workspace/${workspaceId}/create`,
     data
   );
+  return response.data;
+};
+
+export const startTaskTimerMutationFn = async ({
+  taskId,
+}: TaskTimerPayloadType): Promise<{ message: string; task: TaskType }> => {
+  const response = await API.post(`/task/${taskId}/timer/start`);
+  return response.data;
+};
+
+export const stopTaskTimerMutationFn = async ({
+  taskId,
+  data,
+}: StopTaskTimerPayloadType): Promise<{ message: string; task: TaskType }> => {
+  const response = await API.post(`/task/${taskId}/timer/stop`, data);
   return response.data;
 };
 

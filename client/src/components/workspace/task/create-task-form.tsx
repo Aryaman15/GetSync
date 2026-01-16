@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "../../ui/textarea";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -109,6 +110,8 @@ export default function CreateTaskForm(props: {
     taskTypeCode: z.string().trim().min(1, {
       message: "Task type is required",
     }),
+    chapter: z.string().trim().optional(),
+    pageRange: z.string().trim().optional(),
     description: z.string().trim(),
     projectId: z.string().trim().min(1, {
       message: "Project is required",
@@ -137,6 +140,8 @@ export default function CreateTaskForm(props: {
     resolver: zodResolver(formSchema),
     defaultValues: {
       taskTypeCode: "",
+      chapter: "",
+      pageRange: "",
       description: "",
       projectId: projectId ? projectId : "",
     },
@@ -255,6 +260,48 @@ export default function CreateTaskForm(props: {
                         {selectedTaskType.name}
                       </p>
                     ) : null}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div>
+              <FormField
+                control={form.control}
+                name="chapter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Chapter
+                      <span className="text-xs font-extralight ml-2">
+                        Optional
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Section 5 / 1 Article" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div>
+              <FormField
+                control={form.control}
+                name="pageRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-[#f1f7feb5] text-sm">
+                      Page Range
+                      <span className="text-xs font-extralight ml-2">
+                        Optional
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="30-35" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

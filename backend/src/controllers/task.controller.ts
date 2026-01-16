@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import {
   createTaskSchema,
+  stopTaskTimerSchema,
   taskIdSchema,
   updateTaskSchema,
 } from "../validation/task.validation";
@@ -15,6 +16,8 @@ import {
   deleteTaskService,
   getAllTasksService,
   getTaskByIdService,
+  startTaskTimerService,
+  stopTaskTimerService,
   updateTaskService,
 } from "../services/task.service";
 import { HTTPSTATUS } from "../config/http.config";
@@ -143,6 +146,35 @@ export const deleteTaskController = asyncHandler(
 
     return res.status(HTTPSTATUS.OK).json({
       message: "Task deleted successfully",
+    });
+  }
+);
+
+export const startTaskTimerController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const taskId = taskIdSchema.parse(req.params.id);
+
+    const { task } = await startTaskTimerService(taskId, userId);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Task timer started successfully",
+      task,
+    });
+  }
+);
+
+export const stopTaskTimerController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const taskId = taskIdSchema.parse(req.params.id);
+    const body = stopTaskTimerSchema.parse(req.body);
+
+    const { task } = await stopTaskTimerService(taskId, userId, body);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Task timer stopped successfully",
+      task,
     });
   }
 );

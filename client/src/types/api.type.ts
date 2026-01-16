@@ -231,6 +231,8 @@ export type CreateTaskPayloadType = {
   data: {
     taskTypeCode: string;
     description: string;
+    chapter?: string;
+    pageRange?: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
     assignedTo: string;
@@ -245,6 +247,8 @@ export type EditTaskPayloadType = {
   data: Partial<{
     title: string;
     description: string;
+    chapter: string;
+    pageRange: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
     assignedTo: string;
@@ -253,10 +257,22 @@ export type EditTaskPayloadType = {
 };
 
 
-export type TaskType = {
+type TaskTimerFields = {
+  firstStartedAt?: string | null;
+  activeStartAt?: string | null;
+  isRunning?: boolean;
+  lastStoppedAt?: string | null;
+  totalMinutesSpent?: number;
+  pagesCompleted?: number | null;
+  remarks?: string | null;
+};
+
+export type TaskType = TaskTimerFields & {
   _id: string;
   title: string;
   description?: string;
+  chapter?: string | null;
+  pageRange?: string | null;
   taskTypeCode?: string;
   taskTypeName?: string;
   project?: {
@@ -276,6 +292,18 @@ export type TaskType = {
   taskCode: string;
   createdAt?: string;
   updatedAt?: string;
+};
+
+export type TaskTimerPayloadType = {
+  taskId: string;
+};
+
+export type StopTaskTimerPayloadType = {
+  taskId: string;
+  data: {
+    pagesCompleted?: number;
+    remarks?: string;
+  };
 };
 
 export type AllTaskPayloadType = {
