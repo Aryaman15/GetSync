@@ -6,6 +6,7 @@ import {
   Users,
   CheckCircle,
   LayoutDashboard,
+  BarChart3,
 } from "lucide-react";
 import {
   SidebarGroup,
@@ -55,6 +56,11 @@ export function NavMain() {
 
     ...(canManageSettings
       ? [
+          {
+            title: "Progress",
+            url: `/workspace/${workspaceId}/progress`,
+            icon: BarChart3,
+          },
           {
             title: "Settings",
             url: `/workspace/${workspaceId}/settings`,
