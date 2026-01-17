@@ -68,6 +68,16 @@ const CHART_COLORS = [
 
 const formatHours = (value: number) => Number(value.toFixed(2));
 
+const formatDuration = (totalMinutes: number) => {
+  const minutes = Math.max(0, totalMinutes);
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  if (hours === 0) {
+    return `${remainingMinutes}m`;
+  }
+  return `${hours}h ${remainingMinutes}m`;
+};
+
 const getDateRange = (days: number) => {
   const end = new Date();
   const start = subDays(end, days);
@@ -572,7 +582,9 @@ const Progress = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Duration (min)</TableHead>
+                    <TableHead>Task</TableHead>
+                    <TableHead>Project</TableHead>
+                    <TableHead>Duration</TableHead>
                     <TableHead>Pages</TableHead>
                     <TableHead>Remarks</TableHead>
                   </TableRow>
@@ -581,7 +593,7 @@ const Progress = () => {
                   {isEmployeeLoading && (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={5}
                         className="text-center text-sm text-muted-foreground"
                       >
                         Loading work logs...
@@ -592,7 +604,7 @@ const Progress = () => {
                     !isEmployeeLoading && (
                       <TableRow>
                         <TableCell
-                          colSpan={4}
+                          colSpan={5}
                           className="text-center text-sm text-muted-foreground"
                         >
                           No work logs in range.
@@ -606,7 +618,11 @@ const Progress = () => {
                           ? format(new Date(log.activityAt), "PP")
                           : "—"}
                       </TableCell>
-                      <TableCell>{log.durationMinutes}</TableCell>
+                      <TableCell className="font-medium">
+                        {log.taskTitle ?? log.taskCode ?? "—"}
+                      </TableCell>
+                      <TableCell>{log.projectName ?? "—"}</TableCell>
+                      <TableCell>{formatDuration(log.durationMinutes)}</TableCell>
                       <TableCell>{log.pagesCompleted ?? 0}</TableCell>
                       <TableCell className="max-w-xs truncate">
                         {log.remarks ?? "—"}
