@@ -45,17 +45,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Permissions } from "@/constant";
-import withPermission from "@/hoc/with-permission";
-import useWorkspaceId from "@/hooks/use-workspace-id";
-import { getWorkspaceProgressEmployeeQueryFn, getWorkspaceProgressSummaryQueryFn } from "@/lib/api";
-import { ProgressEmployeeResponseType, ProgressSummaryResponseType } from "@/types/api.type";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
 type DatePreset = {
@@ -138,30 +127,6 @@ const Progress = () => {
         }),
       enabled: !!workspaceId && !!selectedEmployeeId,
     });
-  const [presetDays, setPresetDays] = useState<number>(30);
-  const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<"name" | "totalAssigned" | "done" | "pending" | "totalHours" | "totalPages" | "lastActiveAt">("totalHours");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
-
-  const dateRange = useMemo(() => getDateRange(presetDays), [presetDays]);
-
-  const { data: summaryData, isPending: isSummaryLoading } = useQuery<ProgressSummaryResponseType>({
-    queryKey: ["progress-summary", workspaceId, dateRange.from, dateRange.to],
-    queryFn: () => getWorkspaceProgressSummaryQueryFn({ workspaceId, ...dateRange }),
-    enabled: !!workspaceId,
-  });
-
-  const { data: employeeData, isPending: isEmployeeLoading } = useQuery<ProgressEmployeeResponseType>({
-    queryKey: ["progress-employee", workspaceId, selectedEmployeeId, dateRange.from, dateRange.to],
-    queryFn: () =>
-      getWorkspaceProgressEmployeeQueryFn({
-        workspaceId,
-        userId: selectedEmployeeId as string,
-        ...dateRange,
-      }),
-    enabled: !!workspaceId && !!selectedEmployeeId,
-  });
 
   const summary = summaryData;
   const projectStats = summary?.projectStats;
@@ -197,8 +162,6 @@ const Progress = () => {
     () => taskStats?.tasksByStatus ?? [],
     [taskStats]
   );
-  const topClients = useMemo(() => clientStats?.projectsByClient.slice(0, 10) ?? [], [clientStats]);
-  const tasksByStatus = useMemo(() => taskStats?.tasksByStatus ?? [], [taskStats]);
   const topEmployeesByHours = useMemo(
     () =>
       [...employeeStats]
@@ -208,7 +171,6 @@ const Progress = () => {
           name: employee.name,
           hours: formatHours(employee.totalHours),
         })),
-        .map((employee) => ({ name: employee.name, hours: formatHours(employee.totalHours) })),
     [employeeStats]
   );
 
@@ -228,7 +190,6 @@ const Progress = () => {
   const selectedEmployee = employeeStats.find(
     (employee) => employee.userId === selectedEmployeeId
   );
-  const selectedEmployee = employeeStats.find((employee) => employee.userId === selectedEmployeeId);
 
   return (
     <div className="w-full h-full flex-col space-y-8 pt-3">
@@ -262,7 +223,6 @@ const Progress = () => {
             <div className="text-2xl font-semibold">
               {projectStats?.totalProjects ?? 0}
             </div>
-            <div className="text-2xl font-semibold">{projectStats?.totalProjects ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Active {projectStats?.activeProjects ?? 0} · Completed{" "}
               {projectStats?.completedProjects ?? 0}
@@ -282,11 +242,6 @@ const Progress = () => {
             <p className="text-xs text-muted-foreground">
               Distinct clients in range
             </p>
-            <CardTitle className="text-sm font-medium">Clients worked with</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            <div className="text-2xl font-semibold">{clientStats?.totalClients ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Distinct clients in range</p>
           </CardContent>
         </Card>
         <Card className="shadow-none">
@@ -300,9 +255,6 @@ const Progress = () => {
             <p className="text-xs text-muted-foreground">
               Done {taskStats?.doneTasks ?? 0} · Pending{" "}
               {taskStats?.pendingTasks ?? 0}
-            <div className="text-2xl font-semibold">{taskStats?.totalTasks ?? 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Done {taskStats?.doneTasks ?? 0} · Pending {taskStats?.pendingTasks ?? 0}
             </p>
           </CardContent>
         </Card>
@@ -317,8 +269,6 @@ const Progress = () => {
             <p className="text-xs text-muted-foreground">
               Past due and unfinished
             </p>
-            <div className="text-2xl font-semibold">{taskStats?.overdueTasks ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Past due and unfinished</p>
           </CardContent>
         </Card>
       </div>
@@ -352,18 +302,6 @@ const Progress = () => {
                     fill="hsl(var(--chart-1))"
                     radius={[4, 4, 0, 0]}
                   />
-            <CardTitle className="text-sm font-medium">Projects by client (top 10)</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            {topClients.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No client data available.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topClients} margin={{ left: 0, right: 0 }}>
-                  <XAxis dataKey="clientName" tick={{ fontSize: 12 }} interval={0} angle={-10} dy={8} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="projectCount" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -395,17 +333,6 @@ const Progress = () => {
                         key={entry.status}
                         fill={CHART_COLORS[index % CHART_COLORS.length]}
                       />
-            <CardTitle className="text-sm font-medium">Tasks by status</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            {tasksByStatus.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No task status data available.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={tasksByStatus} dataKey="count" nameKey="status" innerRadius={40} outerRadius={80}>
-                    {tasksByStatus.map((entry, index) => (
-                      <Cell key={entry.status} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -444,18 +371,6 @@ const Progress = () => {
                   fill="hsl(var(--chart-2))"
                   radius={[4, 4, 0, 0]}
                 />
-          <CardTitle className="text-sm font-medium">Total hours by employee (top 10)</CardTitle>
-        </CardHeader>
-        <CardContent className="h-64">
-          {topEmployeesByHours.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No employee activity in range.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topEmployeesByHours} margin={{ left: 0, right: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-10} dy={8} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="hours" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -472,9 +387,6 @@ const Progress = () => {
               {isSummaryLoading
                 ? "Loading summary..."
                 : `${employeeStats.length} employees`}
-            <CardTitle className="text-sm font-medium">Employee activity</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              {isSummaryLoading ? "Loading summary..." : `${employeeStats.length} employees`}
             </p>
           </div>
           <Input
@@ -530,13 +442,6 @@ const Progress = () => {
                 >
                   Last active
                 </TableHead>
-                <TableHead onClick={() => handleSort("name")} className="cursor-pointer">Employee</TableHead>
-                <TableHead onClick={() => handleSort("totalAssigned")} className="cursor-pointer">Assigned</TableHead>
-                <TableHead onClick={() => handleSort("done")} className="cursor-pointer">Done</TableHead>
-                <TableHead onClick={() => handleSort("pending")} className="cursor-pointer">Pending</TableHead>
-                <TableHead onClick={() => handleSort("totalHours")} className="cursor-pointer">Total hours</TableHead>
-                <TableHead onClick={() => handleSort("totalPages")} className="cursor-pointer">Pages</TableHead>
-                <TableHead onClick={() => handleSort("lastActiveAt")} className="cursor-pointer">Last active</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -546,7 +451,6 @@ const Progress = () => {
                     colSpan={7}
                     className="text-center text-sm text-muted-foreground"
                   >
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
                     No employees found.
                   </TableCell>
                 </TableRow>
@@ -560,7 +464,6 @@ const Progress = () => {
                   <TableCell className="font-medium">
                     {employee.name}
                   </TableCell>
-                  <TableCell className="font-medium">{employee.name}</TableCell>
                   <TableCell>{employee.totalAssigned}</TableCell>
                   <TableCell>{employee.done}</TableCell>
                   <TableCell>{employee.pending}</TableCell>
@@ -574,7 +477,6 @@ const Progress = () => {
                             addSuffix: true,
                           }
                         )
-                      ? formatDistanceToNowStrict(new Date(employee.lastActiveAt), { addSuffix: true })
                       : "—"}
                   </TableCell>
                 </TableRow>
@@ -588,7 +490,6 @@ const Progress = () => {
         open={!!selectedEmployeeId}
         onOpenChange={(open) => !open && setSelectedEmployeeId(null)}
       >
-      <Dialog open={!!selectedEmployeeId} onOpenChange={(open) => !open && setSelectedEmployeeId(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{selectedEmployee?.name ?? "Employee details"}</DialogTitle>
@@ -600,7 +501,6 @@ const Progress = () => {
                   <CardTitle className="text-sm font-medium">
                     Assigned
                   </CardTitle>
-                  <CardTitle className="text-sm font-medium">Assigned</CardTitle>
                 </CardHeader>
                 <CardContent className="text-2xl font-semibold">
                   {employeeData?.employee.totalAssigned ?? 0}
@@ -611,7 +511,6 @@ const Progress = () => {
                   <CardTitle className="text-sm font-medium">
                     Completed
                   </CardTitle>
-                  <CardTitle className="text-sm font-medium">Completed</CardTitle>
                 </CardHeader>
                 <CardContent className="text-2xl font-semibold">
                   {employeeData?.employee.done ?? 0}
@@ -622,7 +521,6 @@ const Progress = () => {
                   <CardTitle className="text-sm font-medium">
                     Total hours
                   </CardTitle>
-                  <CardTitle className="text-sm font-medium">Total hours</CardTitle>
                 </CardHeader>
                 <CardContent className="text-2xl font-semibold">
                   {employeeData?.employee.totalHours ?? 0}
@@ -647,7 +545,6 @@ const Progress = () => {
                         colSpan={3}
                         className="text-center text-sm text-muted-foreground"
                       >
-                      <TableCell colSpan={3} className="text-center text-sm text-muted-foreground">
                         No tasks assigned in range.
                       </TableCell>
                     </TableRow>
@@ -660,8 +557,6 @@ const Progress = () => {
                       <TableCell>
                         {task.project?.name ?? "Unassigned"}
                       </TableCell>
-                      <TableCell className="font-medium">{task.title}</TableCell>
-                      <TableCell>{task.project?.name ?? "Unassigned"}</TableCell>
                       <TableCell>
                         <Badge variant={task.status}>{task.status}</Badge>
                       </TableCell>
@@ -689,7 +584,6 @@ const Progress = () => {
                         colSpan={4}
                         className="text-center text-sm text-muted-foreground"
                       >
-                      <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
                         Loading work logs...
                       </TableCell>
                     </TableRow>
@@ -717,21 +611,6 @@ const Progress = () => {
                       <TableCell className="max-w-xs truncate">
                         {log.remarks ?? "—"}
                       </TableCell>
-                  {(employeeData?.workLogs ?? []).length === 0 && !isEmployeeLoading && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
-                        No work logs in range.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {(employeeData?.workLogs ?? []).map((log) => (
-                    <TableRow key={log._id}>
-                      <TableCell>
-                        {log.activityAt ? format(new Date(log.activityAt), "PP") : "—"}
-                      </TableCell>
-                      <TableCell>{log.durationMinutes}</TableCell>
-                      <TableCell>{log.pagesCompleted ?? 0}</TableCell>
-                      <TableCell className="max-w-xs truncate">{log.remarks ?? "—"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -740,25 +619,10 @@ const Progress = () => {
           </div>
         </DialogContent>
       </Dialog>
-import { Permissions } from "@/constant";
-import withPermission from "@/hoc/with-permission";
-
-const Progress = () => {
-  return (
-    <div className="w-full h-full flex-col space-y-8 pt-3">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Progress</h2>
-          <p className="text-muted-foreground">
-            Track workspace progress and completion trends here.
-          </p>
-        </div>
-      </div>
     </div>
   );
 };
 
-const ProgressWithPermission = withPermission(Progress, Permissions.MANAGE_WORKSPACE_SETTINGS);
 const ProgressWithPermission = withPermission(
   Progress,
   Permissions.MANAGE_WORKSPACE_SETTINGS
