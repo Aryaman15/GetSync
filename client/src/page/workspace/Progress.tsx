@@ -184,6 +184,30 @@ const Progress = () => {
     [employeeStats]
   );
 
+  const totalLoggedMinutes = useMemo(
+    () =>
+      employeeStats.reduce(
+        (total, employee) => total + (employee.totalMinutes || 0),
+        0
+      ),
+    [employeeStats]
+  );
+  const totalLoggedPages = useMemo(
+    () =>
+      employeeStats.reduce(
+        (total, employee) => total + (employee.totalPages || 0),
+        0
+      ),
+    [employeeStats]
+  );
+  const activeEmployees = useMemo(
+    () => employeeStats.filter((employee) => employee.totalMinutes > 0),
+    [employeeStats]
+  );
+  const mostActiveEmployee = [...activeEmployees].sort(
+    (a, b) => b.totalMinutes - a.totalMinutes
+  )[0];
+
   const handlePresetChange = (days: number) => {
     setPresetDays(days);
   };
@@ -224,7 +248,7 @@ const Progress = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         <Card className="shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Projects</CardTitle>
@@ -278,6 +302,31 @@ const Progress = () => {
             </div>
             <p className="text-xs text-muted-foreground">
               Past due and unfinished
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Logged time</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            <div className="text-2xl font-semibold">
+              {formatDuration(totalLoggedMinutes)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Across {activeEmployees.length} active{" "}
+              {activeEmployees.length === 1 ? "member" : "members"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Pages logged</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            <div className="text-2xl font-semibold">{totalLoggedPages}</div>
+            <p className="text-xs text-muted-foreground">
+              Captured in work logs
             </p>
           </CardContent>
         </Card>
@@ -352,6 +401,27 @@ const Progress = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="shadow-none">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Top contributor</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+          {mostActiveEmployee ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold text-foreground">
+                {mostActiveEmployee.name}
+              </span>
+              <span>
+                {formatDuration(mostActiveEmployee.totalMinutes)} logged
+              </span>
+              <span>· {mostActiveEmployee.totalPages} pages</span>
+            </div>
+          ) : (
+            <span>No activity logged in range.</span>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="shadow-none">
         <CardHeader>
