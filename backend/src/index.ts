@@ -57,6 +57,7 @@ app.get('/',asyncHandler(async (req:Request,res: Response,next:NextFunction)=>{
 app.use(`${BASE_PATH}/auth`,authRoutes);
 app.use(`${BASE_PATH}/user`,isAuthenticated,userRoutes);
 app.use(`${BASE_PATH}/workspace`,isAuthenticated,workspaceRoutes);
+app.use(`${BASE_PATH}/workspaces`,isAuthenticated,workspaceRoutes);
 app.use(`${BASE_PATH}/member`,isAuthenticated,memberRoutes);
 app.use(`${BASE_PATH}/project`,isAuthenticated,projectRoutes);
 app.use(`${BASE_PATH}/task`,isAuthenticated,taskRoutes);
@@ -68,4 +69,3 @@ app.listen(config.PORT,async()=>{
     console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
     await connectDatabase();
 })
-
