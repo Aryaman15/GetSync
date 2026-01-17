@@ -18,10 +18,13 @@ import useWorkspaceId from "@/hooks/use-workspace-id";
 import {
   getWorkspaceProgressEmployeeQueryFn,
   getWorkspaceProgressSummaryQueryFn,
+  getWorkspaceFileActivityQueryFn,
 } from "@/lib/api";
 import {
   ProgressEmployeeResponseType,
   ProgressSummaryResponseType,
+  WorkspaceFileActivityLogType,
+  WorkspaceFileActivityResponseType,
 } from "@/types/api.type";
 import {
   Card,
@@ -46,6 +49,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type DatePreset = {
   label: string;
@@ -138,6 +148,13 @@ const Progress = () => {
       enabled: !!workspaceId && !!selectedEmployeeId,
     });
 
+  const { data: fileActivityData, isPending: isFileActivityLoading } =
+    useQuery<WorkspaceFileActivityResponseType>({
+      queryKey: ["workspace-file-activity", workspaceId],
+      queryFn: () => getWorkspaceFileActivityQueryFn({ workspaceId, days: 7 }),
+      enabled: !!workspaceId,
+    });
+
   const summary = summaryData;
   const projectStats = summary?.projectStats;
   const taskStats = summary?.taskStats;
@@ -183,6 +200,44 @@ const Progress = () => {
         })),
     [employeeStats]
   );
+
+  const [fileUserFilter, setFileUserFilter] = useState("all");
+  const [fileActionFilter, setFileActionFilter] = useState("all");
+  const [fileFromDate, setFileFromDate] = useState("");
+  const [fileToDate, setFileToDate] = useState("");
+
+  const fileActivityLogs = useMemo(() => {
+    const logs = fileActivityData?.logs ?? [];
+    return logs.filter((log) => {
+      if (fileUserFilter !== "all" && log.user?._id !== fileUserFilter) {
+        return false;
+      }
+      if (fileActionFilter !== "all" && log.action !== fileActionFilter) {
+        return false;
+      }
+      const createdAt = new Date(log.createdAt);
+      if (fileFromDate) {
+        const fromDate = new Date(fileFromDate);
+        if (createdAt < fromDate) return false;
+      }
+      if (fileToDate) {
+        const toDate = new Date(fileToDate);
+        toDate.setHours(23, 59, 59, 999);
+        if (createdAt > toDate) return false;
+      }
+      return true;
+    });
+  }, [fileActivityData?.logs, fileActionFilter, fileFromDate, fileToDate, fileUserFilter]);
+
+  const fileActivityUsers = useMemo(() => {
+    const map = new Map<string, WorkspaceFileActivityLogType["user"]>();
+    (fileActivityData?.logs ?? []).forEach((log) => {
+      if (log.user && !map.has(log.user._id)) {
+        map.set(log.user._id, log.user);
+      }
+    });
+    return Array.from(map.values());
+  }, [fileActivityData?.logs]);
 
   const handlePresetChange = (days: number) => {
     setPresetDays(days);
@@ -487,6 +542,114 @@ const Progress = () => {
                             addSuffix: true,
                           }
                         )
+                      : "—"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-none">
+        <CardHeader className="flex flex-col gap-4">
+          <div>
+            <CardTitle className="text-sm font-medium">
+              File Activity (Last 7 days)
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Track uploads, downloads, and folder creation across the workspace.
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-4">
+            <Select value={fileUserFilter} onValueChange={setFileUserFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All users" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All users</SelectItem>
+                {fileActivityUsers.map((user) =>
+                  user ? (
+                    <SelectItem key={user._id} value={user._id}>
+                      {user.name} · {user.email}
+                    </SelectItem>
+                  ) : null
+                )}
+              </SelectContent>
+            </Select>
+            <Select value={fileActionFilter} onValueChange={setFileActionFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All actions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All actions</SelectItem>
+                <SelectItem value="ENTER">Enter</SelectItem>
+                <SelectItem value="UPLOAD">Upload</SelectItem>
+                <SelectItem value="DOWNLOAD">Download</SelectItem>
+                <SelectItem value="CREATE_FOLDER">Create folder</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              type="date"
+              value={fileFromDate}
+              onChange={(event) => setFileFromDate(event.target.value)}
+            />
+            <Input
+              type="date"
+              value={fileToDate}
+              onChange={(event) => setFileToDate(event.target.value)}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Path</TableHead>
+                <TableHead>File</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead>When</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isFileActivityLoading && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-sm text-muted-foreground"
+                  >
+                    Loading file activity...
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isFileActivityLoading && fileActivityLogs.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-sm text-muted-foreground"
+                  >
+                    No file activity found for the selected filters.
+                  </TableCell>
+                </TableRow>
+              )}
+              {fileActivityLogs.map((log) => (
+                <TableRow key={log._id}>
+                  <TableCell className="font-medium">
+                    {log.user ? `${log.user.name} (${log.user.email})` : "—"}
+                  </TableCell>
+                  <TableCell className="capitalize">
+                    {log.action.replace("_", " ").toLowerCase()}
+                  </TableCell>
+                  <TableCell>{log.path || "—"}</TableCell>
+                  <TableCell>{log.fileName ?? "—"}</TableCell>
+                  <TableCell>
+                    {log.size ? `${(log.size / 1024).toFixed(1)} KB` : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {log.createdAt
+                      ? format(new Date(log.createdAt), "PPp")
                       : "—"}
                   </TableCell>
                 </TableRow>

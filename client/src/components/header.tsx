@@ -23,6 +23,7 @@ const Header = () => {
     if (pathname.includes("/progress")) return "Progress";
     if (pathname.includes("/tasks")) return "Tasks";
     if (pathname.includes("/members")) return "Members";
+    if (pathname.includes("/files")) return "Files";
     return null; // Default label
   };
 

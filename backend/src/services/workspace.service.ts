@@ -503,6 +503,20 @@ export const getWorkspaceProgressEmployeeService = async (
       { $unwind: "$task" },
       { $match: { "task.workspace": workspaceObjectId } },
       {
+        $lookup: {
+          from: "projects",
+          localField: "task.project",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      {
+        $unwind: {
+          path: "$project",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: 1,
           taskId: 1,
@@ -512,6 +526,9 @@ export const getWorkspaceProgressEmployeeService = async (
           startedAt: 1,
           stoppedAt: 1,
           activityAt: 1,
+          taskTitle: "$task.title",
+          taskCode: "$task.taskCode",
+          projectName: "$project.name",
         },
       },
       { $sort: { activityAt: -1 } },

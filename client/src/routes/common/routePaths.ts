@@ -14,6 +14,7 @@ export const PROTECTED_ROUTES = {
   MEMBERS: "/workspace/:workspaceId/members",
   SETTINGS: "/workspace/:workspaceId/settings",
   PROGRESS: "/workspace/:workspaceId/progress",
+  FILES: "/workspace/:workspaceId/files",
   PROJECT_DETAILS: "/workspace/:workspaceId/project/:projectId",
 };
 

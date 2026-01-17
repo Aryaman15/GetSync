@@ -229,6 +229,43 @@ export type ProgressEmployeePayloadType = {
   to?: string;
 };
 
+export type WorkspaceFileItemType = {
+  name: string;
+  type: "file" | "folder";
+  size?: number;
+  modifiedAt?: string;
+};
+
+export type WorkspaceFileListResponseType = {
+  message: string;
+  path: string;
+  items: WorkspaceFileItemType[];
+};
+
+export type WorkspaceFileUploadResponseType = {
+  message: string;
+  files: { name: string; size: number }[];
+};
+
+export type WorkspaceFileActivityLogType = {
+  _id: string;
+  action: "ENTER" | "DOWNLOAD" | "UPLOAD" | "CREATE_FOLDER";
+  path: string;
+  fileName?: string;
+  size?: number;
+  createdAt: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+  } | null;
+};
+
+export type WorkspaceFileActivityResponseType = {
+  message: string;
+  logs: WorkspaceFileActivityLogType[];
+};
+
 export type PaginationType = {
   totalCount: number;
   pageSize: number;
