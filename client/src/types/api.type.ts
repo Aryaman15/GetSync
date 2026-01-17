@@ -133,6 +133,107 @@ export type AnalyticsResponseType = {
   };
 };
 
+export type ProgressSummaryResponseType = {
+  message: string;
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  projectStats: {
+    totalProjects: number;
+    activeProjects: number;
+    completedProjects: number;
+  };
+  clientStats: {
+    totalClients: number;
+    projectsByClient: {
+      clientId: string;
+      clientName: string;
+      projectCount: number;
+    }[];
+  };
+  taskStats: {
+    totalTasks: number;
+    doneTasks: number;
+    pendingTasks: number;
+    overdueTasks: number;
+    tasksByStatus: {
+      status: string;
+      count: number;
+    }[];
+  };
+  employeeStats: {
+    userId: string;
+    name: string;
+    totalAssigned: number;
+    done: number;
+    pending: number;
+    totalMinutes: number;
+    totalHours: number;
+    totalPages: number;
+    lastActiveAt: string | null;
+  }[];
+};
+
+export type ProgressSummaryPayloadType = {
+  workspaceId: string;
+  from?: string;
+  to?: string;
+};
+
+export type ProgressEmployeeResponseType = {
+  message: string;
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  employee: {
+    userId: string;
+    totalAssigned: number;
+    done: number;
+    pending: number;
+    totalMinutes: number;
+    totalHours: number;
+    totalPages: number;
+    lastActiveAt: string | null;
+  };
+  tasks: {
+    _id?: string;
+    taskCode?: string;
+    title: string;
+    taskTypeCode?: string;
+    taskTypeName?: string;
+    status: string;
+    project?: {
+      _id: string;
+      name: string;
+      clientId?: string;
+      clientName?: string;
+    } | null;
+  }[];
+  workLogs: {
+    _id: string;
+    taskId: string;
+    durationMinutes: number;
+    pagesCompleted?: number;
+    remarks?: string | null;
+    startedAt: string;
+    stoppedAt: string;
+    activityAt?: string;
+    taskTitle?: string;
+    taskCode?: string;
+    projectName?: string;
+    projectId?: string;
+  }[];
+};
+
+export type ProgressEmployeePayloadType = {
+  workspaceId: string;
+  userId: string;
+  from?: string;
+  to?: string;
+};
+
 export type PaginationType = {
   totalCount: number;
   pageSize: number;
