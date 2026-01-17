@@ -68,7 +68,7 @@ export const getWorkspaceProgressSummaryQueryFn = async ({
   if (to) params.set("to", to);
   const queryString = params.toString();
   const response = await API.get(
-    `/workspaces/${workspaceId}/progress/summary${
+    `/workspace/progress/${workspaceId}/summary${
       queryString ? `?${queryString}` : ""
     }`
   );
@@ -86,7 +86,7 @@ export const getWorkspaceProgressEmployeeQueryFn = async ({
   if (to) params.set("to", to);
   const queryString = params.toString();
   const response = await API.get(
-    `/workspaces/${workspaceId}/progress/employees/${userId}${
+    `/workspace/progress/${workspaceId}/employees/${userId}${
       queryString ? `?${queryString}` : ""
     }`
   );
