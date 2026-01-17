@@ -269,6 +269,7 @@ const Progress = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card className="shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Projects</CardTitle>
@@ -732,6 +733,24 @@ const Progress = () => {
                       </TableRow>
                     );
                   })}
+                  {(employeeData?.workLogs ?? []).map((log) => (
+                    <TableRow key={log._id}>
+                      <TableCell>
+                        {log.activityAt
+                          ? format(new Date(log.activityAt), "PP")
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {log.taskTitle ?? log.taskCode ?? "—"}
+                      </TableCell>
+                      <TableCell>{log.projectName ?? "—"}</TableCell>
+                      <TableCell>{formatDuration(log.durationMinutes)}</TableCell>
+                      <TableCell>{log.pagesCompleted ?? 0}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {log.remarks ?? "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
@@ -747,4 +766,5 @@ const ProgressWithPermission = withPermission(
   Permissions.MANAGE_WORKSPACE_SETTINGS
 );
 
+export default ProgressWithPermission;
 export default ProgressWithPermission;
