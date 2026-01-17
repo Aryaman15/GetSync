@@ -7,6 +7,7 @@ import {
   CheckCircle,
   LayoutDashboard,
   BarChart3,
+  FolderClosed,
 } from "lucide-react";
 import {
   SidebarGroup,
@@ -52,6 +53,11 @@ export function NavMain() {
       title: "Members",
       url: `/workspace/${workspaceId}/members`,
       icon: Users,
+    },
+    {
+      title: "Files",
+      url: `/workspace/${workspaceId}/files`,
+      icon: FolderClosed,
     },
 
     ...(canManageSettings

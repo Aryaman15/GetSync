@@ -2,6 +2,7 @@ import GoogleOAuthFailure from "@/page/auth/GoogleOAuthFailure";
 import SignIn from "@/page/auth/Sign-in";
 import SignUp from "@/page/auth/Sign-up";
 import WorkspaceDashboard from "@/page/workspace/Dashboard";
+import Files from "@/page/workspace/Files";
 import Members from "@/page/workspace/Members";
 import ProjectDetails from "@/page/workspace/ProjectDetails";
 import Progress from "@/page/workspace/Progress";
@@ -21,6 +22,7 @@ export const protectedRoutePaths = [
   { path: PROTECTED_ROUTES.TASKS, element: <Tasks /> },
   { path: PROTECTED_ROUTES.MEMBERS, element: <Members /> },
   { path: PROTECTED_ROUTES.PROGRESS, element: <Progress /> },
+  { path: PROTECTED_ROUTES.FILES, element: <Files /> },
   { path: PROTECTED_ROUTES.SETTINGS, element: <Settings /> },
   { path: PROTECTED_ROUTES.PROJECT_DETAILS, element: <ProjectDetails /> },
 ];

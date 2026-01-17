@@ -1,18 +1,25 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   changeWorkspaceMemberRoleController,
   createWorkspaceController,
+  createWorkspaceFolderController,
   deleteWorkspaceByIdController,
+  downloadWorkspaceFileController,
   getAllWorkspacesUserIsMemberController,
   getWorkspaceAnalyticsController,
   getWorkspaceByIdController,
+  getWorkspaceFileActivityController,
   getWorkspaceMembersController,
   getWorkspaceProgressEmployeeController,
   getWorkspaceProgressSummaryController,
+  listWorkspaceFilesController,
+  uploadWorkspaceFilesController,
   updateWorkspaceByIdController,
 } from "../controllers/workspace.controller";
 
 const workspaceRoutes = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // To create a new workspace
 workspaceRoutes.post("/create/new", createWorkspaceController);
@@ -46,6 +53,16 @@ workspaceRoutes.get(
   "/progress/:id/employees/:userId",
   getWorkspaceProgressEmployeeController
 );
+
+workspaceRoutes.get("/:id/files", listWorkspaceFilesController);
+workspaceRoutes.get("/:id/files/download", downloadWorkspaceFileController);
+workspaceRoutes.post(
+  "/:id/files/upload",
+  upload.array("files"),
+  uploadWorkspaceFilesController
+);
+workspaceRoutes.post("/:id/files/folder", createWorkspaceFolderController);
+workspaceRoutes.get("/:id/file-activity", getWorkspaceFileActivityController);
 
 workspaceRoutes.get("/:id", getWorkspaceByIdController);
 

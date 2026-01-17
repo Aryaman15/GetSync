@@ -1,5 +1,5 @@
 import API from "./axios-client";
-import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProgressEmployeePayloadType, ProgressEmployeeResponseType, ProgressSummaryPayloadType, ProgressSummaryResponseType, ProjectByIdPayloadType, ProjectResponseType, registerType, StopTaskTimerPayloadType, TaskTimerPayloadType, TaskType, TaskTypesResponseType, WorkspaceByIdResponseType } from "@/types/api.type";
+import { AllMembersInWorkspaceResponseType, AllProjectPayloadType, AllProjectResponseType, AllTaskPayloadType, AllTaskResponseType, AllWorkspaceResponseType, AnalyticsResponseType, ChangeWorkspaceMemberRoleType, CreateProjectPayloadType, CreateTaskPayloadType, CreateWorkspaceResponseType, CreateWorkspaceType, CurrentUserResponseType, EditProjectPayloadType, EditTaskPayloadType, EditWorkspaceType, LoginResponseType, loginType, ProgressEmployeePayloadType, ProgressEmployeeResponseType, ProgressSummaryPayloadType, ProgressSummaryResponseType, ProjectByIdPayloadType, ProjectResponseType, registerType, StopTaskTimerPayloadType, TaskTimerPayloadType, TaskType, TaskTypesResponseType, WorkspaceByIdResponseType, WorkspaceFileActivityResponseType, WorkspaceFileListResponseType, WorkspaceFileUploadResponseType } from "@/types/api.type";
 
 export const loginMutationFn = async (
   data: loginType
@@ -118,6 +118,91 @@ export const deleteWorkspaceMutationFn = async (
   currentWorkspace: string;
 }> => {
   const response = await API.delete(`/workspace/delete/${workspaceId}`);
+  return response.data;
+};
+
+export const getWorkspaceFilesQueryFn = async ({
+  workspaceId,
+  path = "",
+}: {
+  workspaceId: string;
+  path?: string;
+}): Promise<WorkspaceFileListResponseType> => {
+  const params = new URLSearchParams();
+  if (path) params.set("path", path);
+  const queryString = params.toString();
+  const response = await API.get(
+    `/workspace/${workspaceId}/files${queryString ? `?${queryString}` : ""}`
+  );
+  return response.data;
+};
+
+export const uploadWorkspaceFilesMutationFn = async ({
+  workspaceId,
+  path = "",
+  files,
+}: {
+  workspaceId: string;
+  path?: string;
+  files: File[];
+}): Promise<WorkspaceFileUploadResponseType> => {
+  const params = new URLSearchParams();
+  if (path) params.set("path", path);
+  const queryString = params.toString();
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files", file));
+  const response = await API.post(
+    `/workspace/${workspaceId}/files/upload${queryString ? `?${queryString}` : ""}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data;
+};
+
+export const createWorkspaceFolderMutationFn = async ({
+  workspaceId,
+  path = "",
+  name,
+}: {
+  workspaceId: string;
+  path?: string;
+  name: string;
+}): Promise<{ message: string; folder: { name: string } }> => {
+  const response = await API.post(`/workspace/${workspaceId}/files/folder`, {
+    path,
+    name,
+  });
+  return response.data;
+};
+
+export const downloadWorkspaceFileQueryFn = async ({
+  workspaceId,
+  path,
+}: {
+  workspaceId: string;
+  path: string;
+}): Promise<Blob> => {
+  const params = new URLSearchParams();
+  params.set("path", path);
+  const response = await API.get(
+    `/workspace/${workspaceId}/files/download?${params.toString()}`,
+    { responseType: "blob" }
+  );
+  return response.data;
+};
+
+export const getWorkspaceFileActivityQueryFn = async ({
+  workspaceId,
+  days = 7,
+}: {
+  workspaceId: string;
+  days?: number;
+}): Promise<WorkspaceFileActivityResponseType> => {
+  const params = new URLSearchParams();
+  params.set("days", days.toString());
+  const response = await API.get(
+    `/workspace/${workspaceId}/file-activity?${params.toString()}`
+  );
   return response.data;
 };
 

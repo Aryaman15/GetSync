@@ -20,10 +20,23 @@ import {
   getWorkspaceProgressSummaryService,
   updateWorkspaceByIdService,
 } from "../services/workspace.service";
+import {
+  createWorkspaceFolderService,
+  getWorkspaceFileDownloadService,
+  listWorkspaceFileActivityService,
+  listWorkspaceFilesService,
+  uploadWorkspaceFilesService,
+} from "../services/file-library.service";
 import { getMemberRoleInWorkspace } from "../services/member.service";
 import { Permissions } from "../enums/role.enum";
 import { roleGuard } from "../utils/roleGuard";
 import { updateWorkspaceSchema } from "../validation/workspace.validation";
+import {
+  createFolderSchema,
+  fileActivityQuerySchema,
+  filePathQuerySchema,
+} from "../validation/file-library.validation";
+import { BadRequestException } from "../utils/appError";
 
 export const createWorkspaceController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -152,6 +165,123 @@ export const getWorkspaceProgressEmployeeController = asyncHandler(
     return res.status(HTTPSTATUS.OK).json({
       message: "Workspace employee progress retrieved successfully",
       ...progress,
+    });
+  }
+);
+
+export const listWorkspaceFilesController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const pathQuery = filePathQuerySchema.parse(req.query.path as string);
+
+    await getMemberRoleInWorkspace(userId, workspaceId);
+
+    const data = await listWorkspaceFilesService({
+      workspaceId,
+      userId,
+      relPath: pathQuery,
+    });
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace files listed successfully",
+      ...data,
+    });
+  }
+);
+
+export const downloadWorkspaceFileController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const pathQuery = filePathQuerySchema.parse(req.query.path as string);
+
+    if (!pathQuery) {
+      throw new BadRequestException("File path is required");
+    }
+
+    await getMemberRoleInWorkspace(userId, workspaceId);
+
+    const { fileName, size, stream } = await getWorkspaceFileDownloadService({
+      workspaceId,
+      userId,
+      relPath: pathQuery,
+    });
+
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(fileName)}"`
+    );
+    res.setHeader("Content-Length", size.toString());
+
+    stream.pipe(res);
+  }
+);
+
+export const uploadWorkspaceFilesController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const pathQuery = filePathQuerySchema.parse(req.query.path as string);
+
+    await getMemberRoleInWorkspace(userId, workspaceId);
+
+    const files = (req.files as Express.Multer.File[]) ?? [];
+
+    const uploaded = await uploadWorkspaceFilesService({
+      workspaceId,
+      userId,
+      relPath: pathQuery,
+      files,
+    });
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Files uploaded successfully",
+      files: uploaded,
+    });
+  }
+);
+
+export const createWorkspaceFolderController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const { path: relPath, name } = createFolderSchema.parse(req.body);
+
+    await getMemberRoleInWorkspace(userId, workspaceId);
+
+    const folder = await createWorkspaceFolderService({
+      workspaceId,
+      userId,
+      relPath,
+      name,
+    });
+
+    return res.status(HTTPSTATUS.CREATED).json({
+      message: "Folder created successfully",
+      folder,
+    });
+  }
+);
+
+export const getWorkspaceFileActivityController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const days = fileActivityQuerySchema.parse(req.query.days as string);
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.MANAGE_WORKSPACE_SETTINGS]);
+
+    const logs = await listWorkspaceFileActivityService({
+      workspaceId,
+      days,
+    });
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace file activity retrieved successfully",
+      logs,
     });
   }
 );

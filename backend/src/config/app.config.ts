@@ -17,7 +17,8 @@ const appConfig=()=>({
     GOOGLE_CALLBACK_URL:getEnv("GOOGLE_CALLBACK_URL","http://localhost:8000/api/auth/google/callback"),
 
     FRONTEND_ORIGIN:getEnv("FRONTEND_ORIGIN","http://localhost:5173"),
-    FRONTEND_GOOGLE_CALLBACK_URL:getEnv("FRONTEND_GOOGLE_CALLBACK_URL","http://localhost:5173/google/oauth/callback")
+    FRONTEND_GOOGLE_CALLBACK_URL:getEnv("FRONTEND_GOOGLE_CALLBACK_URL","http://localhost:5173/google/oauth/callback"),
+    FILE_STORAGE_ROOT:getEnv("FILE_STORAGE_ROOT","/srv/CokratorStorage")
 
 });
 export const config=appConfig();
