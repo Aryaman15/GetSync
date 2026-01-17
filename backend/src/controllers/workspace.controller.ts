@@ -4,6 +4,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import {
   changeRoleSchema,
   createWorkspaceSchema,
+  userIdSchema,
   workspaceIdSchema,
 } from "../validation/workspace.validation";
 import { HTTPSTATUS } from "../config/http.config";
@@ -15,6 +16,8 @@ import {
   getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
+  getWorkspaceProgressEmployeeService,
+  getWorkspaceProgressSummaryService,
   updateWorkspaceByIdService,
 } from "../services/workspace.service";
 import { getMemberRoleInWorkspace } from "../services/member.service";
@@ -101,6 +104,54 @@ export const getWorkspaceAnalyticsController = asyncHandler(
     return res.status(HTTPSTATUS.OK).json({
       message: "Workspace analytics retrieved successfully",
       analytics,
+    });
+  }
+);
+
+export const getWorkspaceProgressSummaryController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const from = req.query.from as string | undefined;
+    const to = req.query.to as string | undefined;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.MANAGE_WORKSPACE_SETTINGS]);
+
+    const progress = await getWorkspaceProgressSummaryService(
+      workspaceId,
+      from,
+      to
+    );
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace progress summary retrieved successfully",
+      ...progress,
+    });
+  }
+);
+
+export const getWorkspaceProgressEmployeeController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const employeeId = userIdSchema.parse(req.params.userId);
+    const userId = req.user?._id;
+    const from = req.query.from as string | undefined;
+    const to = req.query.to as string | undefined;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.MANAGE_WORKSPACE_SETTINGS]);
+
+    const progress = await getWorkspaceProgressEmployeeService(
+      workspaceId,
+      employeeId,
+      from,
+      to
+    );
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace employee progress retrieved successfully",
+      ...progress,
     });
   }
 );
