@@ -103,6 +103,18 @@ const EMPLOYEE_CREDENTIALS = [
     password: "Pankaj@260015",
     role: Roles.MEMBER,
   },
+  {
+    name: "Aryaman",
+    employeeCode: "COK15072004",
+    password: "1234",
+    role: Roles.MEMBER,
+  },
+   {
+    name: "Aryaman Admin",
+    employeeCode: "1234",
+    password: "1234",
+    role: Roles.MEMBER,
+  }
 ] as const;
 
 const EMPLOYEE_EMAIL_DOMAIN = "getsync.local";
