@@ -24,7 +24,6 @@ import { useMutation } from "@tanstack/react-query";
 import { loginMutationFn } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { Loader } from "lucide-react";
-import { EMPLOYEE_CREDENTIALS } from "@/constant";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -54,21 +53,6 @@ const SignIn = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
-
-    const matchingCredential = EMPLOYEE_CREDENTIALS.find(
-      (credential) =>
-        credential.employeeCode === values.email.trim() &&
-        credential.password === values.password.trim()
-    );
-
-    if (!matchingCredential) {
-      toast({
-        title: "Invalid credentials",
-        description: "Use one of the assigned employee codes and passwords.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     mutate(values, {
       onSuccess: (data) => {
@@ -102,7 +86,7 @@ const SignIn = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Welcome back</CardTitle>
               <CardDescription>
-                Login with your assigned employee code and password
+                Login with your employee code and password
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -170,41 +154,6 @@ const SignIn = () => {
                         {isPending && <Loader className="animate-spin" />}
                         Login
                       </Button>
-                    </div>
-                    <div className="text-center text-sm text-muted-foreground">
-                      Access is provisioned by your admin. Use the credentials
-                      below.
-                    </div>
-                    <div className="rounded-md border text-sm">
-                      <div className="grid grid-cols-[1.2fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-3 py-2 font-medium">
-                        <span>Name</span>
-                        <span>Employee code</span>
-                        <span>Password</span>
-                        <span className="text-right">Use</span>
-                      </div>
-                      <div className="max-h-64 overflow-auto">
-                        {EMPLOYEE_CREDENTIALS.map((credential) => (
-                          <div
-                            key={credential.employeeCode}
-                            className="grid grid-cols-[1.2fr_1fr_1fr_auto] items-center gap-2 border-b px-3 py-2 last:border-b-0"
-                          >
-                            <span>{credential.name}</span>
-                            <span>{credential.employeeCode}</span>
-                            <span>{credential.password}</span>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                form.setValue("email", credential.employeeCode);
-                                form.setValue("password", credential.password);
-                              }}
-                            >
-                              Fill
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </form>
