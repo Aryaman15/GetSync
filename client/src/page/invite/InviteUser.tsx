@@ -62,16 +62,16 @@ const InviteUser = () => {
           className="flex items-center gap-2 self-center font-medium"
         >
           <Logo />
-          Team Sync.
+          GetSync.
         </Link>
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-xl">
-                Hey there! You're invited to join a TeamSync Workspace!
+                Hey there! You're invited to join a GetSync Workspace!
               </CardTitle>
               <CardDescription>
-                Looks like you need to be logged into your TeamSync account to
+                Looks like you need to be logged into your GetSync account to
                 join this Workspace.
               </CardDescription>
             </CardHeader>
@@ -99,17 +99,9 @@ const InviteUser = () => {
                     <div className="flex flex-col md:flex-row items-center gap-2">
                       <Link
                         className="flex-1 w-full text-base"
-                        to={`/sign-up?returnUrl=${returnUrl}`}
-                      >
-                        <Button className="w-full">Signup</Button>
-                      </Link>
-                      <Link
-                        className="flex-1 w-full text-base"
                         to={`/?returnUrl=${returnUrl}`}
                       >
-                        <Button variant="secondary" className="w-full border">
-                          Login
-                        </Button>
+                        <Button className="w-full">Login</Button>
                       </Link>
                     </div>
                   )}
