@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/logo";
-import GoogleOauthButton from "@/components/auth/google-oauth-button";
 import { useMutation } from "@tanstack/react-query";
 import { loginMutationFn } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { Loader } from "lucide-react";
+import { EMPLOYEE_CREDENTIALS } from "@/constant";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -36,8 +36,8 @@ const SignIn = () => {
   });
 
   const formSchema = z.object({
-    email: z.string().trim().email("Invalid email address").min(1, {
-      message: "Workspace name is required",
+    email: z.string().trim().min(1, {
+      message: "Employee code is required",
     }),
     password: z.string().trim().min(1, {
       message: "Password is required",
@@ -54,6 +54,21 @@ const SignIn = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
+
+    const matchingCredential = EMPLOYEE_CREDENTIALS.find(
+      (credential) =>
+        credential.employeeCode === values.email.trim() &&
+        credential.password === values.password.trim()
+    );
+
+    if (!matchingCredential) {
+      toast({
+        title: "Invalid credentials",
+        description: "Use one of the assigned employee codes and passwords.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     mutate(values, {
       onSuccess: (data) => {
@@ -80,28 +95,20 @@ const SignIn = () => {
           className="flex items-center gap-2 self-center font-medium"
         >
           <Logo />
-          Team Sync.
+          GetSync.
         </Link>
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Welcome back</CardTitle>
               <CardDescription>
-                Login with your Email or Google account
+                Login with your assigned employee code and password
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                   <div className="grid gap-6">
-                    <div className="flex flex-col gap-4">
-                      <GoogleOauthButton label="Login" />
-                    </div>
-                    <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                      <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
                     <div className="grid gap-3">
                       <div className="grid gap-2">
                         <FormField
@@ -110,11 +117,11 @@ const SignIn = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="dark:text-[#f1f7feb5] text-sm">
-                                Email
+                                Employee code
                               </FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="m@example.com"
+                                  placeholder="COK001"
                                   className="!h-[48px]"
                                   {...field}
                                 />
@@ -164,14 +171,40 @@ const SignIn = () => {
                         Login
                       </Button>
                     </div>
-                    <div className="text-center text-sm">
-                      Don&apos;t have an account?{" "}
-                      <Link
-                        to="/sign-up"
-                        className="underline underline-offset-4"
-                      >
-                        Sign up
-                      </Link>
+                    <div className="text-center text-sm text-muted-foreground">
+                      Access is provisioned by your admin. Use the credentials
+                      below.
+                    </div>
+                    <div className="rounded-md border text-sm">
+                      <div className="grid grid-cols-[1.2fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-3 py-2 font-medium">
+                        <span>Name</span>
+                        <span>Employee code</span>
+                        <span>Password</span>
+                        <span className="text-right">Use</span>
+                      </div>
+                      <div className="max-h-64 overflow-auto">
+                        {EMPLOYEE_CREDENTIALS.map((credential) => (
+                          <div
+                            key={credential.employeeCode}
+                            className="grid grid-cols-[1.2fr_1fr_1fr_auto] items-center gap-2 border-b px-3 py-2 last:border-b-0"
+                          >
+                            <span>{credential.name}</span>
+                            <span>{credential.employeeCode}</span>
+                            <span>{credential.password}</span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                form.setValue("email", credential.employeeCode);
+                                form.setValue("password", credential.password);
+                              }}
+                            >
+                              Fill
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </form>
