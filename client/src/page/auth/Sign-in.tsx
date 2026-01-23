@@ -23,12 +23,14 @@ import Logo from "@/components/logo";
 import { useMutation } from "@tanstack/react-query";
 import { loginMutationFn } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-import { Loader } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
+import { useState } from "react";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("returnUrl");
+  const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useMutation({
     mutationFn: loginMutationFn,
@@ -126,19 +128,33 @@ const SignIn = () => {
                                 <FormLabel className="dark:text-[#f1f7feb5] text-sm">
                                   Password
                                 </FormLabel>
-                                <a
-                                  href="#"
-                                  className="ml-auto text-sm underline-offset-4 hover:underline"
-                                >
-                                  Forgot your password?
-                                </a>
                               </div>
                               <FormControl>
-                                <Input
-                                  type="password"
-                                  className="!h-[48px]"
-                                  {...field}
-                                />
+                                <div className="relative">
+                                  <Input
+                                    type={showPassword ? "text" : "password"}
+                                    className="!h-[48px] pr-10"
+                                    {...field}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setShowPassword((prev) => !prev)
+                                    }
+                                    aria-label={
+                                      showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                    }
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </button>
+                                </div>
                               </FormControl>
 
                               <FormMessage />

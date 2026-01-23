@@ -12,6 +12,101 @@ import {
 import MemberModel from "../models/member.model";
 import { ProviderEnum } from "../enums/account-provider.enum";
 
+const EMPLOYEE_CREDENTIALS = [
+  {
+    name: "Arjun Aswal",
+    employeeCode: "COK001",
+    password: "ASA@26001",
+    role: Roles.ADMIN,
+  },
+  {
+    name: "Kuldeep Rawat",
+    employeeCode: "COK002",
+    password: "KSR@26002",
+    role: Roles.ADMIN,
+  },
+  {
+    name: "Nirdosh Kumar",
+    employeeCode: "COK003",
+    password: "NKV@26003",
+    role: Roles.ADMIN,
+  },
+  {
+    name: "Ashish Rawat",
+    employeeCode: "COK004",
+    password: "Ashish@26004",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Vishal Kumar",
+    employeeCode: "COK005",
+    password: "Vishal@26005",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Tannu",
+    employeeCode: "COK006",
+    password: "Tannu@26006",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Sagar",
+    employeeCode: "COK007",
+    password: "Sagar@26007",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Mansi",
+    employeeCode: "COK008",
+    password: "Mansi@26008",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Nikhil",
+    employeeCode: "COK009",
+    password: "Nikhil@26009",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Soumya",
+    employeeCode: "COK010",
+    password: "Soumya@26010",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Sujata",
+    employeeCode: "COK011",
+    password: "Sujata@26011",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Aditi",
+    employeeCode: "COK012",
+    password: "Aditi@26012",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Diksha",
+    employeeCode: "COK013",
+    password: "Diksha@26013",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Ambika",
+    employeeCode: "COK014",
+    password: "Ambika@26014",
+    role: Roles.MEMBER,
+  },
+  {
+    name: "Pankaj Santra",
+    employeeCode: "COK015",
+    password: "Pankaj@260015",
+    role: Roles.MEMBER,
+  },
+] as const;
+
+const EMPLOYEE_EMAIL_DOMAIN = "getsync.local";
+
 export const loginOrCreateAccountService = async (data: {
   provider: string;
   displayName: string;
@@ -168,20 +263,70 @@ export const verifyUserService = async ({
   password: string;
   provider?: string;
 }) => {
-  const account = await AccountModel.findOne({ provider, providerId: email });
-  if (!account) {
-    throw new NotFoundException("Invalid email or password");
+  const credential = EMPLOYEE_CREDENTIALS.find(
+    (employee) =>
+      employee.employeeCode === email && employee.password === password
+  );
+
+  if (!credential) {
+    throw new UnauthorizedException("Invalid employee code or password");
   }
 
-  const user = await UserModel.findById(account.userId);
+  const employeeEmail = `${credential.employeeCode.toLowerCase()}@${EMPLOYEE_EMAIL_DOMAIN}`;
+  let user = await UserModel.findOne({ email: employeeEmail });
 
   if (!user) {
-    throw new NotFoundException("User not found for the given account");
-  }
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    throw new UnauthorizedException("Invalid email or password");
+      user = new UserModel({
+        email: employeeEmail,
+        name: credential.name,
+        profilePicture: null,
+      });
+      await user.save({ session });
+
+      const account = new AccountModel({
+        userId: user._id,
+        provider,
+        providerId: employeeEmail,
+      });
+      await account.save({ session });
+
+      const workspace = new WorkspaceModel({
+        name: `My Workspace`,
+        description: `Workspace created for ${user.name}`,
+        owner: user._id,
+      });
+      await workspace.save({ session });
+
+      const role = await RoleModel.findOne({
+        name: credential.role,
+      }).session(session);
+
+      if (!role) {
+        throw new NotFoundException("Role not found");
+      }
+
+      const member = new MemberModel({
+        userId: user._id,
+        workspaceId: workspace._id,
+        role: role._id,
+        joinedAt: new Date(),
+      });
+      await member.save({ session });
+
+      user.currentWorkspace = workspace._id as mongoose.Types.ObjectId;
+      await user.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
 
   return user.omitPassword();
