@@ -4,7 +4,7 @@ const appConfig=()=>({
     NODE_ENV:getEnv("NODE_ENV","production"),
     PORT:getEnv("PORT","8000"),
     BASE_PATH:getEnv("BASE_PATH","/api"),
-    MONGO_URI:getEnv("MONGO_URI","mongodb://127.0.0.1:27017/ProjectManagement?replicaSet=rs0"),
+    MONGO_URI:getEnv("MONGO_URI","mongodb://127.0.0.1:27017/ProjectManagement"),
 
     JWT_SECRET:getEnv("JWT_SECRET","jwt_secret_key"),
     JWT_EXPIRES_IN: getEnv("JWT_EXPIRES_IN","1d"),
